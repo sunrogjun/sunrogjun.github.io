@@ -1,0 +1,658 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>软件工程过程和生命周期建模 | 琴生</title><meta name="keywords" content="软件工程"><meta name="author" content="琴生"><meta name="copyright" content="琴生"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#f7f9fe"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="软件工程过程和生命周期建模"><meta name="application-name" content="软件工程过程和生命周期建模"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#f7f9fe"><meta property="og:type" content="article"><meta property="og:title" content="软件工程过程和生命周期建模"><meta property="og:url" content="http://srj2003.top/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/index.html"><meta property="og:site_name" content="琴生"><meta property="og:description" content="这一章我们要详细分析软件工程中的各种步骤的组织方式，以便我们协调各种活动。面对的主要问题有如何理解过程模型，如何应对软件开发过程中的种种状况，为此我们首先要解释过程模型的意义，然后为大家介绍各种模型的思想，为了响应变化和规避风险，会涉及到原型化和迭代开发的思想。关键在于思想的理解，模型是固化的，思"><meta property="og:locale" content="zh-CN"><meta property="og:image" content="https://pixabay.com/zh/illustrations/web-development-website-design-7265717/"><meta property="article:author" content="琴生"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://pixabay.com/zh/illustrations/web-development-website-design-7265717/"><meta name="description" content="这一章我们要详细分析软件工程中的各种步骤的组织方式，以便我们协调各种活动。面对的主要问题有如何理解过程模型，如何应对软件开发过程中的种种状况，为此我们首先要解释过程模型的意义，然后为大家介绍各种模型的思想，为了响应变化和规避风险，会涉及到原型化和迭代开发的思想。关键在于思想的理解，模型是固化的，思"><link rel="shortcut icon" href="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg"><link rel="canonical" href="http://srj2003.top/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/"><link rel="preconnect" href="//cdn.cbd.int"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: {"enable":true,"title":"与优秀博主们共同进步","addFriendPlaceholder":null},
+  peoplecanvas: undefined,
+  postHeadAiDescription: undefined,
+  diytitle: undefined,
+  LA51: undefined,
+  greetingBox: undefined,
+  twikooEnvId: 'https://twikoo.srj2003.top/',
+  commentBarrageConfig:undefined,
+  root: '/',
+  preloader: {"source":3},
+  friends_vue_info: undefined,
+  navMusic: true,
+  mainTone: undefined,
+  authorStatus: {"skills":["🤖️ 数码科技爱好者"]},
+  algolia: {"appId":"HDVGOX3R4B","apiKey":"05439fffa3742185ea0c73d8f3b53e1d","indexName":"blog_search","hits":{"per_page":6},"languages":{"input_placeholder":"输入关键词后按下回车查找","hits_empty":"找不到您查询的内容：${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":330},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"作者: 琴生","link":"链接: ","source":"来源: 琴生","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。","copySuccess":"复制成功，复制和转载请标注本文地址"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: '琴生',
+  title: '软件工程过程和生命周期建模',
+  postAI: '',
+  pageFillDescription: '过程与生命周期, 过程的定义, 软件生命周期, 过程的重要意义, 过程模型, 为何需要为过程建立模型, 瀑布模型, 瀑布模型的优点, 瀑布模型的缺点, 瀑布模型的优化——原型化的瀑布模型, 原型的概念, 区分确认和验证, V 模型, 原型化模型——在工作中学会工作, 阶段化开发模型, 产品系统和开发系统, 增量开发和迭代开发, 将增量开发和迭代开发相结合, 进化式迭代开发, 统一过程的特点, 三个支持工序和六个核心工序, 什么是进化式迭代开发, 螺旋模型, 敏捷方法, 敏捷方法的四条原则, 敏捷开发过程的几种方法, 极限编程, 四个变量, 四个准则, 十二条原则, 过程建模工具和技术, 两种主要种类的模型, 静态建模——Lai 表示法, 动态建模, 在所有的软件开发过程模型中你认为哪些过程给予你最大的灵活性以应对需求的变更？这一章我们要详细分析软件工程中的各种步骤的组织方式以便我们协调各种活动面对的主要问题有如何理解过程模型如何应对软件开发过程中的种种状况为此我们首先要解释过程模型的意义然后为大家介绍各种模型的思想为了响应变化和规避风险会涉及到原型化和迭代开发的思想关键在于思想的理解模型是固化的思想运用是灵活的本章重点在过程与生命周期和过程模型章节框架过程与生命周期过程的定义一组有序的任务它涉及活动约束和资源使用的一系列步骤用于产生某种想要的输出过程不仅仅是步骤过程是步骤的集合它将步骤组织起来使人们能够生产满足一系列目标和标准的产品软件生命周期软件开发过程描述了软件产品从概念到实现交付使用和维护的整个过程因此有时把软件开发过程称为软件生命周期过程的重要意义它强制活动具有一致性和一定的结构过程结构允许我们分析理解控制和改进组成过程的活动并以此来指导我们的活动它使我们获取经验并把经验传授给他人过程模型为何需要为过程建立模型达成共识开发团队在记录开发过程的描述时自然的对软件所涉及到的活动资源约束等达成共识这共识就是模型发现缺陷发现过程层面的缺陷过程实施时的不一致性多余部分缺省部分不完善部分从而让过程更有效评价与优化模型应该反映开发的诸多目标并评价侯选活动的有效性和正确性以构建高质量软件瀑布模型线性的安排每一个阶段将开发阶段描述为从一个阶段瀑布般地转换到另一个阶段一个开发阶段必须在另一个开发阶段开始之前完成瀑布模型的优点它的简单性使得开发人员很容易向不熟悉软件开发的客户作出解释每一个过程活动都有与其相关联的里程碑和可交付产品以便于项目经理评估项目进度瀑布模型是最基础的模型很多其他更复杂的模型实际上是在瀑布模型的基础上的润色如加入反馈循环以及额外的活动瀑布模型的缺点除了一些理解非常充分的问题之外实际上软件是通过大量的迭代进行开发的软件是一个创造的过程不是一个制造的过程软件变动时该模型无法处理实际过程中的重复开发问题文档转换有困难它说明了每一个活动的产品例如需求设计或代码但没有揭示一个活动如何把一种制品转化为另外一种制品例如从需求文档转化为设计文档瀑布模型的优化原型化的瀑布模型我们注意到瀑布模型将过程抽象为线性发展的这种抽象给它带来了简单明确和直观的优点但同时也招致了许多问题可是实际的开发中每个步骤并不是理想中的线性发展的的状态比如在设计阶段了解到客户更新了需求或者在设计阶段的疏漏直到测试时才被发现以上的情况都需要返回之前的步骤进行修正才能解决我们需要对瀑布模型进行优化引入原型化以有助于控制活动之间的往返原型的概念一种部分开发的产品用来让用户和开发者共同研究提出意见为最终产品定型原型可以理解为小样在某一阶段产品定型前先做一些小样通过对各种样品的评价和分析并最终为产品定型原型化的瀑布模型如下图所示在实现代码前的需求和设计阶段引进原型化的概念在需求分析阶段通过设计和分析原型以确保需求是一致可行和符合实际的避免在测试阶段付出巨大的代价进行修正在设计阶段原型化有助于开发人员评价可选的设计策略以及决定哪一种策略是最适合的为了确保产品符合需要在测试阶段要进行确认核准和验证区分确认和验证确认确保系统实现了所有需求验证确保每一项功能都是正确的确认保证开发人员构造的是正确的产品而验证检查实现的质量模型模型是瀑布模型的变种它说明测试活动是如何与分析和设计相联系的如下图所示编码位于型的顶点分析和设计在左边测试和维护在右边测试的每个步骤都与分析和设计相对应如果在验证和确认期间发现了问题可以重新执行响应的步骤加以修正验收测试对应需求分析系统测试对应系统设计单元测试和集成测试对应程序设计模型与瀑布模型的区别模型使得隐藏在瀑布模型中的迭代和重做活动更加明确瀑布模型关注文档和制品模型关注活动和正确性原型化模型在工作中学会工作之前在瀑布模型的优化中介绍了原型化的思想原型化并不依附于瀑布模型原型化模型本身是有效的过程模型的基础因为它允许用户以独立的工程模型的方式每一阶段都基于原型的建立以快速构造系统逐步完成各阶段任务如上图所示原型化模型并不依赖于明确的需求或设计在情况不明朗的情况下使用原型化模型先根据简单的需求和设计构造系统的简单样品以理解或澄清问题以确保开发人员用户和客户对产品达成共识也就是说要根据对每一阶段样品的反响明确需求和设计的具体内容原型化设计有助于开发人员和客户达成共识减少了开发中的风险和不确定性但是为达成共识可能会需要反复进行原型设计阶段化开发模型系统被设计成部分提交每次用户只能得到部分功能而其他部分处于开发过程中循环周期从软件开发时整理需求文档到系统交付经过的时间理解为何要阶段化开发我们需要了解现在的商业环境不允许产品长时间拖延所以我们要缩短循环周期使用阶段化开发模型使系统能一部分一部分的交付从而在系统其余部分正在开发的同时用户已经获得了一部分功能产品系统和开发系统因为一边开发一边交付所以有两个系统在并行运行运行系统产品系统当前正在被客户和用户使用的系统开发系统准备代替现行产品系统的下一个版本两者关系如下图所示开发人员总是在开发而与此同时正在运行增量开发和迭代开发因为有不断发布的开发系统和已经运行的产品系统我们需要有一种组织两者的方式增量开发和迭代开发是两种最常用的方式增量开发系统需求按照功能分成若干子系统开始建造的版本是规模小的部分功能的系统后续版本添加包含新功能的子系统最后版本是包含全部功能的子系统集迭代开发系统开始就提供了整体功能框架后续版本陆续增强各个子系统最后版本使各个子系统的功能达到最强将增量开发和迭代开发相结合一个新发布的版本可能包含新功能并对已有功能做了改进两种开发方式结合的原因观察用户反馈为新功能开拓市场及时修复问题针对不同版本设置不同专业领域技术的优化进化式迭代开发统一过程用例驱动的以基本架构为中心的迭代式和增量性的软件开发过程框架它使用对象管理组织的并与对象管理组织的软件过程工程原模型等相兼容统一过程的特点统一过程将重复一系列生命期这些生命期构成了一个系统的寿命每个生命期都以向客户推出一个产品版本而结束每个周期包括四个阶段开始阶段确立阶段构建阶段和移交阶段每个阶段可以进一步划分为多次迭代三个支持工序和六个核心工序支持工序配置变更管理工序用来管理系统和需求变更的配置项目管理工序用来管理项目环境配置工序用来配置项目的环境包括所涉及到的过程和工具核心工序业务模型工序通过业务模型获取相关知识以理解需要系统自动完成的业务需求工序通过用例模型获取相关知识以理解自动完成业务的系统需求分析设计工序通过分析设计模型以分析需求设计系统结构实现工序基于实现模型实现系统测试工序通过测试模型进行针对需求的系统测试部署工序通过部署模型部署系统下图展示了统一过程的四个阶段和六个核心工序之间的关系上面一行表示四个阶段左边一列表示六个核心工序二者都包含在软件项目的生命期中每个阶段都包含六个工序但是重点不同开始阶段最关注业务模型几乎不涉及测试和部署确立阶段最关心需求和分析构建阶段最关心实现移交阶段最关心测试和部署几乎不涉及业务模型和需求图中箭头表示六个工序执行顺序菱形覆盖的面积表示关注程度什么是进化式迭代开发进化式迭代开发是统一开发过程的关键实践开发被组织成一系列固定的短期小项目每次迭代都产生经过测试集成并可执行的局部系统每次迭代都具有各自的需求分析设计实现和测试随着时间和一次次迭代系统增量式完善结合下图理解进化式迭代开发螺旋模型此法将开发活动与风险管理结合起来以降低和控制风险有些类似于迭代开发模型结合了迭代的思想同时也结合了原型化的思想该模型的适用范围于较大型软件工程项目如下图所示螺旋模型每次迭代有四个任务依次是计划目标可选方案风险评估开发与测试螺旋模型共有四次迭代依次是操作概念软件需求软件设计开发与测试每一次迭代都根据需求和约束进行风险分析以权衡不同选择并且在确定选择之前通过原型化验证可行性和期望度敏捷方法之前介绍的几种模型逐渐引入了原型化和迭代开发的思想使得过程模型变得庞大而敏捷方法打破了这种局面敏捷方法强调灵活性在快速有效的软件生产中所发挥的作用是重量级方法的叛逆者敏捷方法的四条原则个体和交互的价值胜过过程和工具可以工作的软件胜过面面俱到的文档客户合作胜过合同谈判响应变化胜过遵循计划这四条原则反映了敏捷方法的软件过程倾向性它强调人与人之间的交互是复杂的并且其效果从来都是难以预期的但却是工作中最重要的方面敏捷开发的总体目标尽可能早的持续的对有价值的软件的交付活动以客户满意敏捷开发过程的几种方法极限编程激发人员创造性使管理负担最小的一组技术是敏捷方法中最主要的流派稍后有详细介绍水晶法每一个不同的项目都需要一套不同的策略约定和方法论并列争球法使用迭代的方法其中把每天一次的迭代称为一个冲刺并按需求的优先级别来实现产品自适应软件开发特征驱动软件开发极限编程四个变量成本时间质量和范围通过研究变量之间的相互作用将项目开发分析的更加透彻成功讲述一个项目成功的原则不同的任务对这四个变量有不同的要求分析哪一个变量是项目进展的制约集中精力解决关键问题四个准则沟通客户与开发者之间持续的交流意见简单性鼓励开发者选择最简单的设计或实现来应对客户的需求反馈指在软件开发过程中的各个活动中包含各种反馈循环工作勇气指尽早的和经常性的交付软件功能的承诺十二条原则计划游戏小版本隐喻简单设计测试重构结队编程代码集体所有持续集成每周工作小时现场客户编码标准小版本系统设计要支持尽可能早的交付测试要简单有效简单设计只处理当前需求使设计保持简单因为假设需求是变化的编码标准编码支持其他实践例如测试和重构等其余每条的介绍详见课本例题关于小版本小型发布的说明敏捷开发方法中对计划的发布版本应该按产品特性交付需要交付的特性都必须交付必要时要推迟发布时间按日期交付按照预定发布时间进行发布必要时候裁剪部分功能特性临时决定我们会平衡一下临时根据市场要求和开发进展来确定可能会同时调整交付时间和特性在迭代模式下没有必要计划版本每个迭代都应该完成可发布的版本按照市场需要发布迭代版本即可解析敏捷方法强调灵活性尽可能早的持续的对有价值的软件的交付活动是其总体目标过程建模工具和技术建模工具与技术是在过程模型之内的具体运用两种主要种类的模型静态建模表示法描述一个过程如何由输入转换为输出综合的过程符号描述系统允许人们在任何详细的层次上对任何过程建模该模型范式中可由人员完成角色由资源完成活动最后导致软件工件制品的产生过程模型可以用角色活动加工项工件来显示彼此之间的关系用状态表显示每个加工项工件在特定时间的完成情况过程的元素活动过程中要发生的事件各种前后关系触发条件规则团队成员等等也可以理解为子过程序列活动顺序等等过程模型小型工程可以认为是开发方式等描述资源活动所需的各种资源标注控制针对活动的外部影响等策略各种指导原则包括约束等组织各种层次化结构等描述包括物理的和软件逻辑的结构动态建模推演一个过程用户和开发人员可以看到中间产品和最终产品如何随着时间的推移进行转换系统动力学展示资源流非一般性输入如何通过活动成为输出在所有的软件开发过程模型中你认为哪些过程给予你最大的灵活性以应对需求的变更设计对于分析模型应该是可跟踪的软件的模块可能被映射到多个需求上设计结构应当尽可能的模拟实际问题设计应当表现出一致性不要把设计当成编写代码在创建设计时就应该能够评估质量',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-12-22 21:36:50',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#18171d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f7f9fe')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+          const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+          const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+          if (t === undefined) {
+            if (isLightMode) activateLightMode()
+            else if (isDarkMode) activateDarkMode()
+            else if (isNotSpecified || hasNoSupport) {
+              const now = new Date()
+              const hour = now.getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addListener(e => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else if (t === 'light') activateLightMode()
+          else activateDarkMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><meta name="generator" content="Hexo 7.0.0"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div class="loading-bg"><img class="loading-img nolazyload" alt="加载头像" src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg"/><div class="loading-image-dot"></div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded");
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.endLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><a id="site-name" href="/" accesskey="h"><div class="title">琴生</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 时间轴</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 社交</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友链</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> 关于本人</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> 相册集</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 随笔</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="随机前往一个文章" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> 搜索</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="中控台" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments"><div class="card-content"><div class="author-content-item-tips">互动</div><span class="author-content-item-title"> 最新评论</span></div><div class="aside-list"><span>正在加载中...</span></div></div></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">兴趣点</div><span class="author-content-item-title">寻找你感兴趣的领域</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>3</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>8</sup></a><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" style="font-size: 1.05rem;">软件工程<sup>3</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>文章</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/12/"><span class="card-archive-list-date">十二月 2023</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">8</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/11/"><span class="card-archive-list-date">十一月 2023</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">5</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/05/"><span class="card-archive-list-date">五月 2023</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="显示模式切换" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="边栏显示控制"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="音乐开关"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="切换"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%A4%A7%E5%AD%A6/" itemprop="url">大学</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>软件工程</span></a></span></div></div><h1 class="post-title" itemprop="name headline">软件工程过程和生命周期建模</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2023-12-06T11:05:44.000Z" title="发表于 2023-12-06 19:05:44">2023-12-06</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2023-12-22T13:36:50.260Z" title="更新于 2023-12-22 21:36:50">2023-12-22</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-pv-cv" id="" data-flag-title="软件工程过程和生命周期建模"><i class="anzhiyufont anzhiyu-icon-fw-eye post-meta-icon"></i><span class="post-meta-label" title="阅读量">阅读量:</span><span id="busuanzi_value_page_pv"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为济南"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>济南</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="https://pixabay.com/zh/illustrations/web-development-website-design-7265717/"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://srj2003.top/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/"><header><a class="post-meta-categories" href="/categories/%E5%A4%A7%E5%AD%A6/" itemprop="url">大学</a><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" tabindex="-1" itemprop="url">软件工程</a><h1 id="CrawlerTitle" itemprop="name headline">软件工程过程和生命周期建模</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">琴生</span><time itemprop="dateCreated datePublished" datetime="2023-12-06T11:05:44.000Z" title="发表于 2023-12-06 19:05:44">2023-12-06</time><time itemprop="dateCreated datePublished" datetime="2023-12-22T13:36:50.260Z" title="更新于 2023-12-22 21:36:50">2023-12-22</time></header><blockquote>
+<p>这一章我们要详细分析软件工程中的各种步骤的组织方式，以便我们协调各种活动。面对的主要问题有如何理解过程模型，如何应对软件开发过程中的种种状况，为此我们首先要解释过程模型的意义，然后为大家介绍各种模型的思想，为了响应变化和规避风险，会涉及到原型化和迭代开发的思想。关键在于思想的理解，模型是固化的，思想运用是灵活的。本章重点在过程与生命周期和过程模型。</p>
+</blockquote>
+<p>章节框架：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/06/6570568b46f1c.jpeg"></p>
+<h1 id="过程与生命周期"><a href="#过程与生命周期" class="headerlink" title="过程与生命周期"></a>过程与生命周期</h1><h2 id="过程的定义"><a href="#过程的定义" class="headerlink" title="过程的定义"></a>过程的定义</h2><p>一组有序的任务，它涉及活动、约束和资源使用的一系列步骤，用于产生某种想要的输出。</p>
+<p>过程不仅仅是步骤，过程是步骤的集合，它将步骤组织起来使人们能够生产满足一系列目标和标准的产品。</p>
+<h2 id="软件生命周期"><a href="#软件生命周期" class="headerlink" title="软件生命周期"></a>软件生命周期</h2><p>软件开发过程描述了软件产品从概念到实现、交付、使用和维护的整个过程，因此，有时把软件开发过程称为软件生命周期。</p>
+<h2 id="过程的重要意义"><a href="#过程的重要意义" class="headerlink" title="过程的重要意义"></a>过程的重要意义</h2><ol>
+<li><p>它强制活动具有一致性和一定的结构。</p>
+</li>
+<li><p>过程结构允许我们分析、理解、控制和改进组成过程的活动，并以此来指导我们的活动。</p>
+</li>
+<li><p>它使我们获取经验并把经验传授给他人。</p>
+</li>
+</ol>
+<h1 id="过程模型"><a href="#过程模型" class="headerlink" title="过程模型"></a>过程模型</h1><h2 id="为何需要为过程建立模型"><a href="#为何需要为过程建立模型" class="headerlink" title="为何需要为过程建立模型:"></a>为何需要为过程建立模型:</h2><ol>
+<li><p>达成共识：开发团队在记录开发过程的描述时，自然的对软件所涉及到的活动,资源,约束等达成共识，这共识就是”模型”。</p>
+</li>
+<li><p>发现缺陷：发现过程层面的缺陷(过程实施时的不一致性、多余部分、缺省部分、不完善部分)，从而让过程更有效。</p>
+</li>
+<li><p>评价与优化：模型应该反映开发的诸多目标，并评价侯选活动的有效性和正确性,以构建高质量软件。</p>
+</li>
+</ol>
+<h2 id="瀑布模型"><a href="#瀑布模型" class="headerlink" title="瀑布模型"></a>瀑布模型</h2><p>线性的安排每一个阶段，将开发阶段描述为从一个阶段瀑布般地转换到另一个阶段。一个开发阶段必须在另一个开发阶段开始之前完成。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/06/6570568b700fa.jpeg"></p>
+<h3 id="瀑布模型的优点"><a href="#瀑布模型的优点" class="headerlink" title="瀑布模型的优点"></a>瀑布模型的优点</h3><ol>
+<li><p>它的简单性使得开发人员很容易向不熟悉软件开发的客户作出解释。</p>
+</li>
+<li><p>每一个过程活动都有与其相关联的里程碑和可交付产品，以便于项目经理评估项目进度。</p>
+</li>
+<li><p>瀑布模型是最基础的模型，很多其他更复杂的模型实际上是在瀑布模型的基础上的润色，如加入反馈循环以及额外的活动。</p>
+</li>
+</ol>
+<h3 id="瀑布模型的缺点"><a href="#瀑布模型的缺点" class="headerlink" title="瀑布模型的缺点"></a>瀑布模型的缺点</h3><ol>
+<li><p>除了一些理解非常充分的问题之外，实际上软件是通过大量的迭代进行开发的。软件是一个创造的过程,<br>不是一个制造的过程。软件变动时,<br>该模型无法处理实际过程中的重复开发问题。</p>
+</li>
+<li><p>文档转换有困难。它说明了每一个活动的产品（例如，需求、设计或代码），但没有揭示一个活动如何把一种制品转化为另外一种制品（例如，从需求文档转化为设计文档）。</p>
+</li>
+</ol>
+<h3 id="瀑布模型的优化——原型化的瀑布模型"><a href="#瀑布模型的优化——原型化的瀑布模型" class="headerlink" title="瀑布模型的优化——原型化的瀑布模型"></a>瀑布模型的优化——原型化的瀑布模型</h3><p>我们注意到瀑布模型将过程抽象为线性发展的，这种抽象给它带来了简单、明确和直观的优点，但同时也招致了许多问题。可是实际的开发中每个步骤并不是理想中的线性发展的的状态，比如在设计阶段了解到客户更新了需求，或者在设计阶段的疏漏直到测试时才被发现，以上的情况都需要返回之前的步骤进行修正才能解决。我们需要对瀑布模型进行优化，引入原型化以有助于控制活动之间的往返。</p>
+<h4 id="原型的概念"><a href="#原型的概念" class="headerlink" title="原型的概念"></a>原型的概念</h4><p>一种部分开发的产品，用来让用户和开发者共同研究，提出意见，为最终产品定型。</p>
+<p>原型可以理解为小样，在某一阶段产品定型前先做一些小样，通过对各种样品的评价和分析，并最终为产品定型。</p>
+<p>原型化的瀑布模型如下图所示，在实现代码前的需求和设计阶段引进原型化的概念，在需求分析阶段，通过设计和分析原型以确保需求是一致、可行和符合实际的，避免在测试阶段付出巨大的代价进行修正；在设计阶段，原型化有助于开发人员评价可选的设计策略以及决定哪一种策略是最适合的。为了确保产品符合需要，在测试阶段要进行确认&#x2F;核准（validate）和验证（verify）。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/06/6570568b61fa2.jpeg"></p>
+<h4 id="区分确认和验证"><a href="#区分确认和验证" class="headerlink" title="区分确认和验证"></a>区分确认和验证</h4><p>确认：确保系统实现了所有需求。 </p>
+<p>验证：确保每一项功能都是正确的。</p>
+<p>确认保证开发人员构造的是正确的产品，而验证检查实现的质量。</p>
+<h2 id="V-模型"><a href="#V-模型" class="headerlink" title="V 模型"></a>V 模型</h2><p>V 模型是瀑布模型的变种，它说明测试活动是如何与分析和设计相联系的。</p>
+<p>如下图所示，编码位于 V型的顶点，分析和设计在左边，测试和维护在右边。测试的每个步骤都与分析和设计相对应，如果在验证和确认期间发现了问题，可以重新执行响应的步骤加以修正。验收测试对应需求分析，系统测试对应系统设计，单元测试和集成测试对应程序设计。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/06/6570568b3e495.jpeg"></p>
+<p>V 模型与瀑布模型的区别：</p>
+<ol>
+<li><p>V 模型使得隐藏在瀑布模型中的迭代和重做活动更加明确。</p>
+</li>
+<li><p>瀑布模型关注文档和制品，V 模型关注活动和正确性。</p>
+</li>
+</ol>
+<h2 id="原型化模型——“在工作中学会工作”"><a href="#原型化模型——“在工作中学会工作”" class="headerlink" title="原型化模型——“在工作中学会工作”"></a>原型化模型——“在工作中学会工作”</h2><p>之前在瀑布模型的优化中介绍了原型化的思想，原型化并不依附于瀑布模型，原型化模型本身是有效的过程模型的基础。因为它允许用户以独立的工程模型的方式,<br>每一阶段都基于原型的建立, 以快速构造系统, 逐步完成各阶段任务。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/06/6570568b6f187.jpeg"></p>
+<p>如上图所示，原型化模型并不依赖于明确的需求或设计，在情况不明朗的情况下使用原型化模型，先根据简单的需求和设计构造系统的简单样品以理解或澄清问题，以确保开发人员、用户和客户对产品达成共识。也就是说，要根据对每一阶段样品的反响明确需求和设计的具体内容。原型化设计有助于开发人员和客户达成共识，减少了开发中的风险和不确定性。但是为达成共识可能会需要反复进行原型设计。</p>
+<h2 id="阶段化开发模型"><a href="#阶段化开发模型" class="headerlink" title="阶段化开发模型"></a>阶段化开发模型</h2><p>系统被设计成部分提交, 每次用户只能得到部分功能,而其他部分处于开发过程中。</p>
+<p>循环周期：从软件开发时整理需求文档到系统交付经过的时间。</p>
+<p>理解为何要阶段化开发，我们需要了解现在的商业环境不允许产品长时间拖延，所以我们要缩短循环周期，使用阶段化开发模型使系统能一部分一部分的交付，从而在系统其余部分正在开发的同时，用户已经获得了一部分功能。</p>
+<h3 id="产品系统和开发系统"><a href="#产品系统和开发系统" class="headerlink" title="产品系统和开发系统"></a>产品系统和开发系统</h3><p>因为一边开发一边交付，所以有两个系统在并行运行。</p>
+<p>运行系统&#x2F;产品系统：当前正在被客户和用户使用的系统。</p>
+<p>开发系统：准备代替现行产品系统的下一个版本。</p>
+<p>两者关系如下图所示，开发人员总是在开发 n+1，而与此同时 n 正在运行。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/06/6570568b60e04.jpeg"></p>
+<h3 id="增量开发和迭代开发"><a href="#增量开发和迭代开发" class="headerlink" title="增量开发和迭代开发"></a>增量开发和迭代开发</h3><p>因为有不断发布的开发系统和已经运行的产品系统，我们需要有一种组织两者的方式。增量开发和迭代开发是两种最常用的方式。</p>
+<p>增量开发：系统需求按照功能分成若干子系统，开始建造的版本是规模小的、部分功能的系统，后续版本添加包含新功能的子系统，最后版本是包含全部功能的子系统集。</p>
+<p>迭代开发：系统开始就提供了整体功能框架，后续版本陆续增强各个子系统，最后版本使各个子系统的功能达到最强。</p>
+<h3 id="将增量开发和迭代开发相结合"><a href="#将增量开发和迭代开发相结合" class="headerlink" title="将增量开发和迭代开发相结合"></a>将增量开发和迭代开发相结合</h3><p>一个新发布的版本可能包含新功能，并对已有功能做了改进。</p>
+<p>两种开发方式结合的原因：</p>
+<ol>
+<li>观察用户反馈。</li>
+<li>为新功能开拓市场。</li>
+<li>及时修复问题。</li>
+<li>针对不同版本设置不同专业领域技术的优化。</li>
+</ol>
+<h3 id="进化式迭代开发"><a href="#进化式迭代开发" class="headerlink" title="进化式迭代开发"></a>进化式迭代开发</h3><p>统一过程（UP&#x2F;RUP）：用例驱动的、以基本架构为中心的、迭代式和增量性的软件开发过程框架。它使用对象管理组织（OMG）的 UML并与对象管理组织（OMG）的软件过程工程原模型（SPEM）等相兼容。</p>
+<h4 id="统一过程的特点"><a href="#统一过程的特点" class="headerlink" title="统一过程的特点"></a>统一过程的特点</h4><ul>
+<li>统一过程”将重复一系列生命期，这些生命期构成了一个系统的寿命。每个生命期都以向客户推出一个产品版本而结束。</li>
+<li>每个周期包括四个阶段：开始阶段、确立阶段、构建阶段和移交阶段。每个阶段可以进一步划分为多次迭代。</li>
+</ul>
+<h4 id="三个支持工序和六个核心工序"><a href="#三个支持工序和六个核心工序" class="headerlink" title="三个支持工序和六个核心工序"></a>三个支持工序和六个核心工序</h4><p>支持工序：</p>
+<ol>
+<li>配置变更管理工序，用来管理系统和需求变更的配置。</li>
+<li>项目管理工序，用来管理项目。</li>
+<li>环境配置工序，用来配置项目的环境，包括所涉及到的过程和工具。</li>
+</ol>
+<p>核心工序：</p>
+<ol>
+<li>业务模型工序，通过业务模型获取相关知识以理解需要系统自动完成的业务。</li>
+<li>需求工序，通过用例模型获取相关知识以理解自动完成业务的系统需求。</li>
+<li>分析设计工序，通过分析&#x2F;设计模型以分析需求，设计系统结构。</li>
+<li>实现工序，基于实现模型实现系统。</li>
+<li>测试工序，通过测试模型进行针对需求的系统测试。</li>
+<li>部署工序，通过部署模型部署系统。</li>
+</ol>
+<p>下图展示了统一过程的四个阶段和六个核心工序之间的关系，上面一行表示四个阶段，左边一列表示六个核心工序，二者都包含在软件项目的生命期中。每个阶段都包含六个工序，但是重点不同。开始阶段最关注业务模型，几乎不涉及测试和部署；确立阶段最关心需求和分析；构建阶段最关心实现；移交阶段最关心测试和部署，几乎不涉及业务模型和需求。图中箭头表示六个工序执行顺序，菱形覆盖的面积表示关注程度。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/06/6570568b6c479.jpeg"></p>
+<h3 id="什么是进化式迭代开发"><a href="#什么是进化式迭代开发" class="headerlink" title="什么是进化式迭代开发"></a>什么是进化式迭代开发</h3><ol>
+<li>进化式迭代开发是统一开发过程的关键实践。</li>
+<li>开发被组织成一系列固定的短期小项目。</li>
+<li>每次迭代都产生经过测试、集成并可执行的局部系统。</li>
+<li>每次迭代都具有各自的需求分析、设计、实现和测试。</li>
+<li>随着时间和一次次迭代，系统增量式完善。结合下图理解进化式迭代开发。</li>
+</ol>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/06/6570568b7a4e3.jpeg"></p>
+<h2 id="螺旋模型"><a href="#螺旋模型" class="headerlink" title="螺旋模型"></a>螺旋模型</h2><p>此法将开发活动与风险管理结合起来,以降低和控制风险。有些类似于迭代开发模型，结合了迭代的思想，同时也结合了原型化的思想。该模型的适用范围于较大型软件工程项目。</p>
+<p>如下图所示，螺旋模型每次迭代有四个任务，依次是计划、目标&#x2F;可选方案、风险评估、开发与测试。螺旋模型共有四次迭代，依次是操作概念、软件需求、软件设计、开发与测试。]每一次迭代都根据需求和约束进行风险分析，以权衡不同选择，并且在确定选择之前，通过原型化验证可行性和期望度。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/06/6570568b7c85c.jpeg"></p>
+<h2 id="敏捷方法"><a href="#敏捷方法" class="headerlink" title="敏捷方法"></a>敏捷方法</h2><p>之前介绍的几种模型逐渐引入了原型化和迭代开发的思想，使得过程模型变得庞大，而敏捷方法打破了这种局面。</p>
+<p>敏捷方法强调灵活性在快速有效的软件生产中所发挥的作用，是重量级方法的叛逆者。</p>
+<h3 id="敏捷方法的四条原则"><a href="#敏捷方法的四条原则" class="headerlink" title="敏捷方法的四条原则"></a>敏捷方法的四条原则</h3><ol>
+<li>个体和交互的价值胜过过程和工具。</li>
+<li>可以工作的软件胜过面面俱到的文档。</li>
+<li>客户合作胜过合同谈判。</li>
+<li>响应变化胜过遵循计划。</li>
+</ol>
+<p>这四条原则反映了敏捷方法的软件过程倾向性。它强调人与人之间的交互是复杂的，并且其效果从来都是难以预期的，但却是工作中最重要的方面。</p>
+<p>敏捷开发的总体目标：尽可能早的，持续的对有价值的软件的交付活动，以客户满意。</p>
+<h3 id="敏捷开发过程的几种方法"><a href="#敏捷开发过程的几种方法" class="headerlink" title="敏捷开发过程的几种方法"></a>敏捷开发过程的几种方法</h3><ol>
+<li>极限编程(XP)：激发人员创造性，使管理负担最小的一组技术，是敏捷方法中最主要的流派。（稍后有详细介绍）</li>
+<li>Crystal（水晶法）：每一个不同的项目都需要一套不同的策略、约定和方法论。</li>
+<li>SCRUM（并列争球法）：使用迭代的方法，其中把每 30天一次的迭代称为一个”冲刺”，并按需求的优先级别来实现产品。</li>
+<li>Adaptive Software Development(ASD) (自适应软件开发)</li>
+<li>Feature Driven Development(FDD) (特征驱动软件开发)</li>
+</ol>
+<h3 id="极限编程"><a href="#极限编程" class="headerlink" title="极限编程"></a>极限编程</h3><h4 id="四个变量"><a href="#四个变量" class="headerlink" title="四个变量"></a>四个变量</h4><p>成本、时间、质量和范围，通过研究变量之间的相互作用，将项目开发分析的更加透彻，成功讲述一个项目成功的原则。</p>
+<p>不同的任务对这四个变量有不同的要求，分析哪一个变量是项目进展的制约，集中精力解决关键问题。</p>
+<h4 id="四个准则"><a href="#四个准则" class="headerlink" title="四个准则"></a>四个准则</h4><ol>
+<li>沟通: 客户与开发者之间持续的交流意见。</li>
+<li>简单性: 鼓励开发者选择最简单的设计或实现来应对客户的需求。</li>
+<li>反馈: 指在软件开发过程中的各个活动中,包含各种反馈循环工作。</li>
+<li>勇气: 指尽早的和经常性的交付软件功能的承诺。</li>
+</ol>
+<h4 id="十二条原则"><a href="#十二条原则" class="headerlink" title="十二条原则"></a>十二条原则</h4><p>计划游戏、小版本、隐喻、简单设计、测试、重构、结队编程、代码集体所有、持续集成、每周工作40 小时、现场客户、编码标准</p>
+<ul>
+<li><p>小版本：系统设计要支持尽可能早的交付。（测试要简单有效。）</p>
+</li>
+<li><p>简单设计：只处理当前需求，使设计保持简单。（因为假设需求是变化的）</p>
+</li>
+<li><p>编码标准：编码支持其他实践，例如测试和重构等。</p>
+<p>其余每条的介绍详见课本。</p>
+</li>
+</ul>
+<p>例题</p>
+<p>关于小版本(小型发布)的说明：敏捷开发方法中，对计划的发布版本应该（ B）。</p>
+<p>A：按产品特性交付：需要交付的特性都必须交付，必要时要推迟发布时间</p>
+<p>B：按日期交付：按照预定发布时间进行发布，必要时候裁剪部分功能特性。</p>
+<p>C：临时决定：我们会平衡一下，临时根据市场要求和开发进展来确定，可能会同时调整交付时间和特性。</p>
+<p>D：在迭代模式下，没有必要计划版本。每个迭代都应该完成可发布的版本，按照市场需要发布迭代版本即可。</p>
+<p>解析：敏捷方法强调灵活性，”尽可能早的，持续的对有价值的软件的交付活动”是其总体目标。</p>
+<h1 id="过程建模工具和技术"><a href="#过程建模工具和技术" class="headerlink" title="过程建模工具和技术"></a>过程建模工具和技术</h1><p>建模工具与技术是在过程模型之内的具体运用。</p>
+<h2 id="两种主要种类的模型"><a href="#两种主要种类的模型" class="headerlink" title="两种主要种类的模型"></a>两种主要种类的模型</h2><h3 id="静态建模——Lai-表示法"><a href="#静态建模——Lai-表示法" class="headerlink" title="静态建模——Lai 表示法"></a>静态建模——Lai 表示法</h3><p>描述一个过程如何由输入转换为输出。</p>
+<p>综合的过程符号描述系统, 允许人们在任何详细的层次上对任何过程建模,该模型范式中可由人员完成角色,由资源完成活动,最后导致软件工件&#x2F;制品的产生。过程模型可以用角色、活动、加工项(工件)来显示彼此之间的关系，用状态表显示每个加工项(工件)在特定时间的完成情况。</p>
+<p>过程的元素：</p>
+<ol>
+<li>活动：过程中要发生的事件。各种前后关系、触发条件、规则、团队成员等等。也可以理解为子过程。</li>
+<li>序列：活动顺序等等。</li>
+<li>过程模型：小型工程可以认为是开发方式等描述。</li>
+<li>资源：活动所需的各种资源标注。</li>
+<li>控制：针对活动的外部影响等。</li>
+<li>策略：各种指导原则，包括约束等。</li>
+<li>组织：各种层次化结构等描述。包括物理的和软件逻辑的结构。</li>
+</ol>
+<h3 id="动态建模"><a href="#动态建模" class="headerlink" title="动态建模"></a>动态建模</h3><p>推演一个过程，用户和开发人员可以看到中间产品和最终产品如何随着时间的推移进行转换。</p>
+<p>系统动力学：展示资源流(非一般性输入)如何通过活动成为输出。</p>
+<h3 id="在所有的软件开发过程模型中，你认为哪些过程给予你最大的灵活性以应对需求的变更？"><a href="#在所有的软件开发过程模型中，你认为哪些过程给予你最大的灵活性以应对需求的变更？" class="headerlink" title="在所有的软件开发过程模型中，你认为哪些过程给予你最大的灵活性以应对需求的变更？"></a>在所有的软件开发过程模型中，你认为哪些过程给予你最大的灵活性以应对需求的变更？</h3><ol>
+<li>设计对于分析模型应该是可跟踪的：软件的模块可能被映射到多个需求上。</li>
+<li>设计结构应当尽可能的模拟实际问题。</li>
+<li>设计应当表现出一致性。</li>
+<li>不要把设计当成编写代码。</li>
+<li>在创建设计时就应该能够评估质量。</li>
+</ol>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg" title="头像" alt="头像"></a><div class="post-copyright__author_name">琴生</div><div class="post-copyright__author_desc">记录一名计算机小白的生涯</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://srj2003.top/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://srj2003.top/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/')">软件工程过程和生命周期建模</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"><div class="post-reward" onclick="anzhiyu.addRewardMask()"><div class="reward-button button--animated" title="赞赏作者"><i class="anzhiyufont anzhiyu-icon-hand-heart-fill"></i>打赏作者</div><div class="reward-main"><div class="reward-all"><span class="reward-title">感谢你赐予我前进的力量</span><ul class="reward-group"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul><a class="reward-main-btn" href="/about/#about-reward" target="_blank"><div class="reward-text">赞赏者名单</div><div class="reward-dec">因为你们的支持让我意识到写文章的价值🙏</div></a></div></div></div><div id="quit-box" onclick="anzhiyu.removeRewardMask()" style="display: none"></div></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://srj2003.top/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=软件工程过程和生命周期建模&amp;url=http://srj2003.top/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/&amp;pic=https://pixabay.com/zh/illustrations/web-development-website-design-7265717/" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://srj2003.top" target="_blank">琴生</a>！</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"><a class="post-meta__box__tags" href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>软件工程<span class="tagsPageCount">3</span></a></div></div></div><div class="post_share"><div class="social-share" data-image="https://bu.dusays.com/2023/12/20/6582a8c3b5077.webp" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E6%A6%82%E8%BF%B0/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://cdn.pixabay.com/photo/2016/11/23/14/45/coding-1853305_1280.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">软件工程概述</div></div></a></div><div class="next-post pull-right"><a href="/2023/12/15/%E8%AE%A1%E7%BD%91%E4%BC%A0%E8%BE%93%E5%B1%82/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">计网传输层</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="anzhiyufont anzhiyu-icon-thumbs-up fa-fw" style="font-size: 1.5rem; margin-right: 4px"></i><span>喜欢这篇文章的人也看了</span></div><div class="relatedPosts-list"><div><a href="/2023/12/19/SDU%E8%BD%AF%E4%BB%B6%E5%AD%A6%E9%99%A2%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%80%83%E8%AF%95%E7%BA%B2%E8%A6%81/" title="SDU软件学院软件工程考试纲要"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/20/6582a8c3b5077.webp" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2023-12-19</div><div class="title">SDU软件学院软件工程考试纲要</div></div></a></div><div><a href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E6%A6%82%E8%BF%B0/" title="软件工程概述"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://cdn.pixabay.com/photo/2016/11/23/14/45/coding-1853305_1280.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2023-12-06</div><div class="title">软件工程概述</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> 评论</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)" style="display: none">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><img class="avatar-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/08/24/64e6ce9c507bb.png" alt="status"/></div></div><div class="author-info__description"><div style="line-height:1.38;margin:0.6rem 0;text-align:justify;color:rgba(255, 255, 255, 0.8);">谨以此站记录我的学习与生活。</div></div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">琴生</h1><div class="author-info__desc">记录一名计算机小白的生涯</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/sunrogjun" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:srj15063104976@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope faa-tada"></i></a></div></div></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bullhorn anzhiyu-shake"></i><span>公告</span></div><div class="announcement_content">如果阅读过程中遇到问题，请及时评论或者留言，看到了会在第一时间给出回复。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>文章目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%87%E7%A8%8B%E4%B8%8E%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">1.</span> <span class="toc-text">过程与生命周期</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%87%E7%A8%8B%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-number">1.1.</span> <span class="toc-text">过程的定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">1.2.</span> <span class="toc-text">软件生命周期</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%87%E7%A8%8B%E7%9A%84%E9%87%8D%E8%A6%81%E6%84%8F%E4%B9%89"><span class="toc-number">1.3.</span> <span class="toc-text">过程的重要意义</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%87%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">过程模型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BD%95%E9%9C%80%E8%A6%81%E4%B8%BA%E8%BF%87%E7%A8%8B%E5%BB%BA%E7%AB%8B%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.1.</span> <span class="toc-text">为何需要为过程建立模型:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%80%91%E5%B8%83%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.2.</span> <span class="toc-text">瀑布模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%80%91%E5%B8%83%E6%A8%A1%E5%9E%8B%E7%9A%84%E4%BC%98%E7%82%B9"><span class="toc-number">2.2.1.</span> <span class="toc-text">瀑布模型的优点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%80%91%E5%B8%83%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="toc-number">2.2.2.</span> <span class="toc-text">瀑布模型的缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%80%91%E5%B8%83%E6%A8%A1%E5%9E%8B%E7%9A%84%E4%BC%98%E5%8C%96%E2%80%94%E2%80%94%E5%8E%9F%E5%9E%8B%E5%8C%96%E7%9A%84%E7%80%91%E5%B8%83%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.2.3.</span> <span class="toc-text">瀑布模型的优化——原型化的瀑布模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-number">2.2.3.1.</span> <span class="toc-text">原型的概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8C%BA%E5%88%86%E7%A1%AE%E8%AE%A4%E5%92%8C%E9%AA%8C%E8%AF%81"><span class="toc-number">2.2.3.2.</span> <span class="toc-text">区分确认和验证</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#V-%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.3.</span> <span class="toc-text">V 模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E5%8C%96%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94%E2%80%9C%E5%9C%A8%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%AD%A6%E4%BC%9A%E5%B7%A5%E4%BD%9C%E2%80%9D"><span class="toc-number">2.4.</span> <span class="toc-text">原型化模型——“在工作中学会工作”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%B6%E6%AE%B5%E5%8C%96%E5%BC%80%E5%8F%91%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.5.</span> <span class="toc-text">阶段化开发模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%A7%E5%93%81%E7%B3%BB%E7%BB%9F%E5%92%8C%E5%BC%80%E5%8F%91%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.5.1.</span> <span class="toc-text">产品系统和开发系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A2%9E%E9%87%8F%E5%BC%80%E5%8F%91%E5%92%8C%E8%BF%AD%E4%BB%A3%E5%BC%80%E5%8F%91"><span class="toc-number">2.5.2.</span> <span class="toc-text">增量开发和迭代开发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%86%E5%A2%9E%E9%87%8F%E5%BC%80%E5%8F%91%E5%92%8C%E8%BF%AD%E4%BB%A3%E5%BC%80%E5%8F%91%E7%9B%B8%E7%BB%93%E5%90%88"><span class="toc-number">2.5.3.</span> <span class="toc-text">将增量开发和迭代开发相结合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E5%8C%96%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%BC%80%E5%8F%91"><span class="toc-number">2.5.4.</span> <span class="toc-text">进化式迭代开发</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%9F%E4%B8%80%E8%BF%87%E7%A8%8B%E7%9A%84%E7%89%B9%E7%82%B9"><span class="toc-number">2.5.4.1.</span> <span class="toc-text">统一过程的特点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E4%B8%AA%E6%94%AF%E6%8C%81%E5%B7%A5%E5%BA%8F%E5%92%8C%E5%85%AD%E4%B8%AA%E6%A0%B8%E5%BF%83%E5%B7%A5%E5%BA%8F"><span class="toc-number">2.5.4.2.</span> <span class="toc-text">三个支持工序和六个核心工序</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%BF%9B%E5%8C%96%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%BC%80%E5%8F%91"><span class="toc-number">2.5.5.</span> <span class="toc-text">什么是进化式迭代开发</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%9E%BA%E6%97%8B%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.6.</span> <span class="toc-text">螺旋模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%8F%E6%8D%B7%E6%96%B9%E6%B3%95"><span class="toc-number">2.7.</span> <span class="toc-text">敏捷方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%8F%E6%8D%B7%E6%96%B9%E6%B3%95%E7%9A%84%E5%9B%9B%E6%9D%A1%E5%8E%9F%E5%88%99"><span class="toc-number">2.7.1.</span> <span class="toc-text">敏捷方法的四条原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%8F%E6%8D%B7%E5%BC%80%E5%8F%91%E8%BF%87%E7%A8%8B%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95"><span class="toc-number">2.7.2.</span> <span class="toc-text">敏捷开发过程的几种方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%81%E9%99%90%E7%BC%96%E7%A8%8B"><span class="toc-number">2.7.3.</span> <span class="toc-text">极限编程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E4%B8%AA%E5%8F%98%E9%87%8F"><span class="toc-number">2.7.3.1.</span> <span class="toc-text">四个变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E4%B8%AA%E5%87%86%E5%88%99"><span class="toc-number">2.7.3.2.</span> <span class="toc-text">四个准则</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%81%E4%BA%8C%E6%9D%A1%E5%8E%9F%E5%88%99"><span class="toc-number">2.7.3.3.</span> <span class="toc-text">十二条原则</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%87%E7%A8%8B%E5%BB%BA%E6%A8%A1%E5%B7%A5%E5%85%B7%E5%92%8C%E6%8A%80%E6%9C%AF"><span class="toc-number">3.</span> <span class="toc-text">过程建模工具和技术</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%A4%E7%A7%8D%E4%B8%BB%E8%A6%81%E7%A7%8D%E7%B1%BB%E7%9A%84%E6%A8%A1%E5%9E%8B"><span class="toc-number">3.1.</span> <span class="toc-text">两种主要种类的模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E5%BB%BA%E6%A8%A1%E2%80%94%E2%80%94Lai-%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="toc-number">3.1.1.</span> <span class="toc-text">静态建模——Lai 表示法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E5%BB%BA%E6%A8%A1"><span class="toc-number">3.1.2.</span> <span class="toc-text">动态建模</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8%E6%89%80%E6%9C%89%E7%9A%84%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E8%BF%87%E7%A8%8B%E6%A8%A1%E5%9E%8B%E4%B8%AD%EF%BC%8C%E4%BD%A0%E8%AE%A4%E4%B8%BA%E5%93%AA%E4%BA%9B%E8%BF%87%E7%A8%8B%E7%BB%99%E4%BA%88%E4%BD%A0%E6%9C%80%E5%A4%A7%E7%9A%84%E7%81%B5%E6%B4%BB%E6%80%A7%E4%BB%A5%E5%BA%94%E5%AF%B9%E9%9C%80%E6%B1%82%E7%9A%84%E5%8F%98%E6%9B%B4%EF%BC%9F"><span class="toc-number">3.1.3.</span> <span class="toc-text">在所有的软件开发过程模型中，你认为哪些过程给予你最大的灵活性以应对需求的变更？</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>最近发布</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/12/19/SDU%E8%BD%AF%E4%BB%B6%E5%AD%A6%E9%99%A2%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%80%83%E8%AF%95%E7%BA%B2%E8%A6%81/" title="SDU软件学院软件工程考试纲要"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/20/6582a8c3b5077.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SDU软件学院软件工程考试纲要"/></a><div class="content"><a class="title" href="/2023/12/19/SDU%E8%BD%AF%E4%BB%B6%E5%AD%A6%E9%99%A2%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%80%83%E8%AF%95%E7%BA%B2%E8%A6%81/" title="SDU软件学院软件工程考试纲要">SDU软件学院软件工程考试纲要</a><time datetime="2023-12-19T03:47:17.000Z" title="发表于 2023-12-19 11:47:17">2023-12-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/15/%E8%AE%A1%E7%BD%91%E4%BC%A0%E8%BE%93%E5%B1%82/" title="计网传输层"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计网传输层"/></a><div class="content"><a class="title" href="/2023/12/15/%E8%AE%A1%E7%BD%91%E4%BC%A0%E8%BE%93%E5%B1%82/" title="计网传输层">计网传输层</a><time datetime="2023-12-15T07:02:24.000Z" title="发表于 2023-12-15 15:02:24">2023-12-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/" title="软件工程过程和生命周期建模"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://pixabay.com/zh/illustrations/web-development-website-design-7265717/" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="软件工程过程和生命周期建模"/></a><div class="content"><a class="title" href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/" title="软件工程过程和生命周期建模">软件工程过程和生命周期建模</a><time datetime="2023-12-06T11:05:44.000Z" title="发表于 2023-12-06 19:05:44">2023-12-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E6%A6%82%E8%BF%B0/" title="软件工程概述"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://cdn.pixabay.com/photo/2016/11/23/14/45/coding-1853305_1280.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="软件工程概述"/></a><div class="content"><a class="title" href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E6%A6%82%E8%BF%B0/" title="软件工程概述">软件工程概述</a><time datetime="2023-12-06T10:54:44.000Z" title="发表于 2023-12-06 18:54:44">2023-12-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/05/%E8%AE%A1%E7%BD%91%E7%BD%91%E7%BB%9C%E5%B1%82/" title="计网网络层"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计网网络层"/></a><div class="content"><a class="title" href="/2023/12/05/%E8%AE%A1%E7%BD%91%E7%BD%91%E7%BB%9C%E5%B1%82/" title="计网网络层">计网网络层</a><time datetime="2023-12-05T13:50:11.000Z" title="发表于 2023-12-05 21:50:11">2023-12-05</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2023 By <a class="footer-bar-link" href="/" title="琴生" target="_blank">琴生</a></div></div><div id="footer-type-tips"></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">文章</div><div class="length-num">14</div></a><a href="/tags/" title="tag"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/" title="category"><div class="headline">分类</div><div class="length-num">2</div></a></div><span class="sidebar-menu-item-title">功能</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="显示模式"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>显示模式</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://blog.anheyu.com/" title="博客"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/favicon.ico" alt="博客"/><span class="back-menu-item-text">博客</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">项目</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://image.anheyu.com/" title="安知鱼图床"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://image.anheyu.com/favicon.ico" alt="安知鱼图床"/><span class="back-menu-item-text">安知鱼图床</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 时间轴</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 社交</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友链</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> 关于本人</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> 相册集</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 随笔</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>3</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>8</sup></a><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" style="font-size: 0.88rem;">软件工程<sup>3</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="8152976493" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="algolia-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="search-wrap"><div id="algolia-search-input"></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-info"><div class="algolia-stats"></div><div class="algolia-poweredBy"></div></div></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://y.qq.com/n/ryqq/playlist/8802438608&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@17.8.5/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("04/01/2021 00:00:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2023 By 安知鱼 V1.6.12",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 琴生 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script src="https://cdn.cbd.int/algoliasearch@4.18.0/dist/algoliasearch-lite.umd.js"></script><script src="https://cdn.cbd.int/instantsearch.js@4.60.0/dist/instantsearch.production.min.js"></script><script src="/js/search/algolia.js"></script><div class="js-pjax"><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.srj2003.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.25/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.srj2003.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script>window.addEventListener('load', () => {
+  const changeContent = (content) => {
+    if (content === '') return content
+
+    content = content.replace(/<img.*?src="(.*?)"?[^\>]+>/ig, '[图片]') // replace image link
+    content = content.replace(/<a[^>]+?href=["']?([^"']+)["']?[^>]*>([^<]+)<\/a>/gi, '[链接]') // replace url
+    content = content.replace(/<pre><code>.*?<\/pre>/gi, '[代码]') // replace code
+    content = content.replace(/<[^>]+>/g,"") // remove html tag
+
+    if (content.length > 150) {
+      content = content.substring(0,150) + '...'
+    }
+    return content
+  }
+
+  const getComment = () => {
+    const runTwikoo = () => {
+      twikoo.getRecentComments({
+        envId: 'https://twikoo.srj2003.top/',
+        region: '',
+        pageSize: 6,
+        includeReply: true
+      }).then(function (res) {
+        const twikooArray = res.map(e => {
+          return {
+            'content': changeContent(e.comment),
+            'avatar': e.avatar,
+            'nick': e.nick,
+            'url': e.url + '#' + e.id,
+            'date': new Date(e.created).toISOString()
+          }
+        })
+
+        saveToLocal.set('twikoo-newest-comments', JSON.stringify(twikooArray), 10/(60*24))
+        generateHtml(twikooArray)
+      }).catch(function (err) {
+        const $dom = document.querySelector('#card-newest-comments .aside-list')
+        $dom.textContent= "无法获取评论，请确认相关配置是否正确"
+      })
+    }
+
+    if (typeof twikoo === 'object') {
+      runTwikoo()
+    } else {
+      getScript('https://cdn.cbd.int/twikoo@1.6.25/dist/twikoo.all.min.js').then(runTwikoo)
+    }
+  }
+
+  const generateHtml = array => {
+    let result = ''
+
+    if (array.length) {
+      for (let i = 0; i < array.length; i++) {
+        result += '<div class=\'aside-list-item\'>'
+
+        if (true) {
+          const name = 'data-lazy-src'
+          result += `<a href='${array[i].url}' class='thumbnail'><img ${name}='${array[i].avatar}' alt='${array[i].nick}'><div class='name'><span>${array[i].nick} </span></div></a>`
+        }
+        
+        result += `<div class='content'>
+        <a class='comment' href='${array[i].url}' title='${array[i].content}'>${array[i].content}</a>
+        <time datetime="${array[i].date}">${anzhiyu.diffDate(array[i].date, true)}</time></div>
+        </div>`
+      }
+    } else {
+      result += '没有评论'
+    }
+
+    let $dom = document.querySelector('#card-newest-comments .aside-list')
+    $dom && ($dom.innerHTML= result)
+    window.lazyLoadInstance && window.lazyLoadInstance.update()
+    window.pjax && window.pjax.refresh($dom)
+  }
+
+  const newestCommentInit = () => {
+    if (document.querySelector('#card-newest-comments .aside-list')) {
+      const data = saveToLocal.get('twikoo-newest-comments')
+      if (data) {
+        generateHtml(JSON.parse(data))
+      } else {
+        getComment()
+      }
+    }
+  }
+
+  newestCommentInit()
+  document.addEventListener('pjax:complete', newestCommentInit)
+})</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/qrcodejs/1.0.0/qrcode.min.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>

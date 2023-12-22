@@ -1,0 +1,603 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>计网数据链路层 | 琴生</title><meta name="keywords" content="计网"><meta name="author" content="琴生"><meta name="copyright" content="琴生"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#f7f9fe"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="计网数据链路层"><meta name="application-name" content="计网数据链路层"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#f7f9fe"><meta property="og:type" content="article"><meta property="og:title" content="计网数据链路层"><meta property="og:url" content="http://srj2003.top/2023/12/03/%E8%AE%A1%E7%BD%91%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/index.html"><meta property="og:site_name" content="琴生"><meta property="og:description" content="数据链路层是基于物理层不可靠的传输向上层提供可靠的传输，它提供的是相邻两个节点之间可靠的数据传输。本章将学习网络模型中的第二层（即数据链路层）的设计原则。学习内容涉及两台相邻（指两台机器通过一条通信信道连接起来）机器实现可靠有效的完整信息块（称为帧）通信的一些算法，而不像物理层那样只关注单个比特传"><meta property="og:locale" content="zh-CN"><meta property="og:image" content="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png"><meta property="article:author" content="琴生"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png"><meta name="description" content="数据链路层是基于物理层不可靠的传输向上层提供可靠的传输，它提供的是相邻两个节点之间可靠的数据传输。本章将学习网络模型中的第二层（即数据链路层）的设计原则。学习内容涉及两台相邻（指两台机器通过一条通信信道连接起来）机器实现可靠有效的完整信息块（称为帧）通信的一些算法，而不像物理层那样只关注单个比特传"><link rel="shortcut icon" href="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg"><link rel="canonical" href="http://srj2003.top/2023/12/03/%E8%AE%A1%E7%BD%91%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/"><link rel="preconnect" href="//cdn.cbd.int"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: {"enable":true,"title":"与优秀博主们共同进步","addFriendPlaceholder":null},
+  peoplecanvas: undefined,
+  postHeadAiDescription: undefined,
+  diytitle: undefined,
+  LA51: undefined,
+  greetingBox: undefined,
+  twikooEnvId: 'https://twikoo.srj2003.top/',
+  commentBarrageConfig:undefined,
+  root: '/',
+  preloader: {"source":3},
+  friends_vue_info: undefined,
+  navMusic: true,
+  mainTone: undefined,
+  authorStatus: {"skills":["🤖️ 数码科技爱好者"]},
+  algolia: {"appId":"HDVGOX3R4B","apiKey":"05439fffa3742185ea0c73d8f3b53e1d","indexName":"blog_search","hits":{"per_page":6},"languages":{"input_placeholder":"输入关键词后按下回车查找","hits_empty":"找不到您查询的内容：${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":330},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"作者: 琴生","link":"链接: ","source":"来源: 琴生","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。","copySuccess":"复制成功，复制和转载请标注本文地址"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: '琴生',
+  title: '计网数据链路层',
+  postAI: '',
+  pageFillDescription: '数据链路层的设计问题, 提供给网络层的服务, 成帧, 差错控制, 流量控制, 差错检测和纠正, 纠错码, 检错码, 基本数据链路层协议, 一个乌托邦式的单工协议（协议1）, 无错信道上的单工停-等式协议（协议2）, 有错信道上的单工停-等式协议（协议3）, 滑动窗口协议, 基本概念, 1 位滑动窗口协议（协议4）, 回退N 协议（协议5）, 选择重传协议（协议6）, 数据链路协议实例数据链路层是基于物理层不可靠的传输向上层提供可靠的传输它提供的是相邻两个节点之间可靠的数据传输本章将学习网络模型中的第二层即数据链路层的设计原则学习内容涉及两台相邻指两台机器通过一条通信信道连接起来机器实现可靠有效的完整信息块称为帧通信的一些算法而不像物理层那样只关注单个比特传输解决通信线路中出错的情况关于有限的数据传输率发送时间和接受时间存在的非零延迟等问题本章内容结构首先介绍数据链路层的关键设计问题并学习如何考察错误的本质以及如何检测和纠正这些错误然后我们将学习一系列复杂性逐步递增的协议每个协议解决了本层中越来越多的问题最后会给出一些数据链路层协议的例子上图为本章考试重点非原书结构仅供参考数据链路层的设计问题数据链路层使用物理层提供的服务在通信信道上发送和接受比特完成一些功能向网络层提供一个定义良好的服务接口处理传输错误调节数据流保证慢速的接收方不会被快速的发送方淹没为实现这些目标数据链路层从网络层获得数据包并将之包装成包含帧头有效载荷存放数据包帧尾的帧数据链路层的工作核心就是帧的管理帧的通用结构中前三项称为帧头提供给网络层的服务最主要的服务是将数据从源机器的网络层传输到目标机器的网络层一般情况下提供以下三种可能的服务无确认的无连接服务源机器向目标机器发送独立的帧目标机器不对这些帧进行确认不需建立逻辑连接适用于错误率低或者实时通信语音传输的情况有确认的无连接服务源机器向目标机器发送独立的帧目标机器会对这些帧进行确认不需建立逻辑连接适用于不可靠的信道无线系统有确认的有连接服务源机器和目标机器在传输任何一个数据之前要建立一个连接保证目标机器按照正确的顺序接受每一个帧适用于长距离且不可靠的链路卫星信道长途电话成帧为检测错误和纠正错误数据链路层将比特流拆分成多个离散的帧为每个帧计算一个称为校验和的短令牌并将该校验和放在帧中一起传输为拆分比特流需要解决两个问题帧的边界问题如何识别帧的边界帧的透明传输填充问题如果帧的数据中出现和边界一样的该如何防止被识别为边界下面介绍四种成帧方法字节计数法用头部的一个字段来标识该帧中的字符数问题因为一个传输错误就会全弄混很少被使用字节填充的标志字节法发送方使用标志字节作为开始和结束使用转义字节表示其后的字节为数据字节而不是标志字节或转义字节接收方将收到的数据中的转义字节删除后再传递给网络层比特填充的标志比特法使用表示帧的开始和结束帧的边界问题解决并且在数据中若遇到个连续的比特就在其后填入一个比特帧的填充问题解决接收方除了将首尾的删除外还要将数据中所有个连续比特其后的比特删除物理层编码违禁法使用不会出现在常规数据中的冗余比特作为边界好处是除了开始和结束的填充外不再需要填充额外的数据差错控制为确保所有帧按照正确顺序传递给目标机器的网络层发送方发送反馈信息来确保传递可靠引入计时器来防止硬件故障或通信信道出错等原因丢失某一帧使发送方持续等待确认通过序号保证每一帧按照顺序且不会被接收方重复接收具体的确认方式在后面通过协议的形式来讲流量控制发送方发送帧的速度超过了接收方能够接收这些帧的速度而导致丢帧解决方法基于反馈的流量控制链路层基于速率的流量控制网络层差错检测和纠正纠错码推断出被发送的数据是什么适用于错误发生很频繁的信道因为再次传输仍可能出错海明码参考原书检错码循环冗余校验码也称作多项式编码推断是否发生错误适用于高度可靠的信道错误偶尔发生时只需重传整个数据块即可注意有一定的误判率步骤以下面算式为例讲解具体原理参见课本收发双方商定一个比帧短且头尾都是的串叫做生成多项式如下的帧的后面附上生成多项式长度减一个后作为被除数对生成多项式模除得到商和余数如长度为所以附上了个若帧与余数合并以后在接收方被生成多项式整除那么认为传递的过程没有出错模除原则列竖式的方式同除法但是模除法中加法无进位减法无借位即加减皆等同于异或而商还是由被除数首位决定首位是商否则商基本数据链路层协议组成帧的四个字段和前三个包含控制信息称为帧头最后一个可能包含了要被传输的实际数据一个乌托邦式的单工协议协议不需考虑任何错误情况数据单向传输双方总是就绪数据处理时间不计缓存空间无限大通信信道永不丢帧这是一个完全不现实理想化的协议所以称为乌托邦协议发送过程是一个无限的循环它尽可能快速地把数据放到线路上无差错控制或者流量控制方面的限制接受过程一直等待一个未损坏的帧到达发送速率和接收速率必须一样快无错信道上的单工停等式协议协议单向数据传输发送方网络层一直有无限的数据要发送信道不会出错从不损坏或丢失帧发送方需等待接收方确认帧返回后才发送下一帧如果接收方不反馈应答信号则发送方必须一直等待然后就陷入等待接收方确认信息的过程中因而传输效率低有错信道上的单工停等式协议协议信道存在噪音需要计时器与序号配合需要超时重传机制滑动窗口协议基本概念滑动窗口为了便于理解可以认为数据是一条传送带而滑动窗口中的数据是当前准备处理的数据一旦窗口的第一条数据被确认处理结束窗口就会继续向后滑动以处理后面的数据下面是发送方的发送窗口形象化的表示捎带确认暂时延缓确认以便将确认信息搭载在下一个出境数据帧上的技术捎带确认通常与累计确认一同使用更好的利用了信道的可用带宽期望确认收到数据帧以后向发送方发送期望对方发送的下一帧的序号累计确认当号帧的确认到达号帧号帧等都会自动被确认否定确认接收方检测到错误时发送的否定确认实际是一个重传请求在中指定了要重传的帧发送窗口发送方总维持着一组序号分别对应于允许它发送的帧我们称这些帧落在发送窗口接收窗口接收方维持着的一个窗口对应于一组允许它接受的帧位滑动窗口协议协议发送窗口大小接收窗口大小当接收窗口大小为时可保证帧的有序接收但效率较低源站发送单个帧后必须等待确认在目的站的确认到达源站之前源站不能发送其他数据帧这是因为发送窗口大小仅为必须用来保存当前未确认的帧以超时重传发送方必须在内存中保存所有的帧因此如果最大窗口的尺寸为则发送方需要个缓冲区才存放未被确认的帧回退协议协议发送窗口大小接收窗口大小发送方按照顺序向对方发送帧在收到对方的确认以后窗口向后滑动若当前窗口中的第一个帧出现超时那么回退到这个帧重新发送所有的帧而因为接收窗口大小为除了数据链路层必须要递交给网络层的下一帧外接收方拒绝接受任何帧如果在计时器超时以前发送方的窗口已被填满则管道将变为空闲最终发送方将超时并且按照顺序重传所有未被确认的帧从那个受损或者丢失的帧开始一般使用累计确认选择重传协议协议发送窗口大小接收窗口大小发送方按照窗口的顺序依次发送帧给接收方而接收方检查该帧是否可以落在接收窗口内即以前没有接收过且该序号在窗口可接收的范围内如果可以那么不管这一帧是否为网络层所期望的下一个数据包都接收该帧并暂存于缓冲区内该帧会一直保存在数据链路层中直到所有序号比它小的帧已经按顺序递交给网络层它才能被传递给网络层辅助计时器在发送方的计时器超时之前没有出现需要发送的反向流量则发送一个单独的确认帧而发送的时间间隔由辅助计时器决定因此辅助计时器的超时间隔应该明显短于数据帧关联的计时器的间隔除选择重传还有否定确认当接收方发现坏帧丢弃时立刻发送一个给发送方告知该帧未收到让它重传以防超时选择重传和回退实际是带宽使用效率与数据链路层缓存空间之间的权衡数据链路协议实例这里要考察的是那些出现在两种常见情形下的数据链路协议这些协议主要用在点到点的线路上第一种情形是通过广域网中的光纤链路发送数据包例如这些链路被广泛用于连接一个网络中位于不同位置的路由器第二种情形是运行在边缘的电话网络本地回路上的链路这些链接把成千上百万的个人和企业连接到上针对上述这些使用场景需要点到点链路还会用到拨号调制解调器租用线路和线缆调制解调器等所谓点到点协议的标准协议就是使用这些链路来发送数据包由定义并在中得到进一步的阐述和链路都釆用了但在使用方式上有所不同详见原书',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-12-22 21:36:17',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#18171d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f7f9fe')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+          const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+          const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+          if (t === undefined) {
+            if (isLightMode) activateLightMode()
+            else if (isDarkMode) activateDarkMode()
+            else if (isNotSpecified || hasNoSupport) {
+              const now = new Date()
+              const hour = now.getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addListener(e => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else if (t === 'light') activateLightMode()
+          else activateDarkMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><meta name="generator" content="Hexo 7.0.0"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div class="loading-bg"><img class="loading-img nolazyload" alt="加载头像" src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg"/><div class="loading-image-dot"></div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded");
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.endLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><a id="site-name" href="/" accesskey="h"><div class="title">琴生</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 时间轴</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 社交</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友链</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> 关于本人</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> 相册集</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 随笔</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="随机前往一个文章" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> 搜索</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="中控台" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments"><div class="card-content"><div class="author-content-item-tips">互动</div><span class="author-content-item-title"> 最新评论</span></div><div class="aside-list"><span>正在加载中...</span></div></div></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">兴趣点</div><span class="author-content-item-title">寻找你感兴趣的领域</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>3</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>8</sup></a><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" style="font-size: 1.05rem;">软件工程<sup>3</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>文章</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/12/"><span class="card-archive-list-date">十二月 2023</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">8</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/11/"><span class="card-archive-list-date">十一月 2023</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">5</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/05/"><span class="card-archive-list-date">五月 2023</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="显示模式切换" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="边栏显示控制"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="音乐开关"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="切换"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%A4%A7%E5%AD%A6/" itemprop="url">大学</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/%E8%AE%A1%E7%BD%91/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>计网</span></a></span></div></div><h1 class="post-title" itemprop="name headline">计网数据链路层</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2023-12-03T11:37:05.000Z" title="发表于 2023-12-03 19:37:05">2023-12-03</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2023-12-22T13:36:17.137Z" title="更新于 2023-12-22 21:36:17">2023-12-22</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-pv-cv" id="" data-flag-title="计网数据链路层"><i class="anzhiyufont anzhiyu-icon-fw-eye post-meta-icon"></i><span class="post-meta-label" title="阅读量">阅读量:</span><span id="busuanzi_value_page_pv"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为济南"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>济南</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://srj2003.top/2023/12/03/%E8%AE%A1%E7%BD%91%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/"><header><a class="post-meta-categories" href="/categories/%E5%A4%A7%E5%AD%A6/" itemprop="url">大学</a><a href="/tags/%E8%AE%A1%E7%BD%91/" tabindex="-1" itemprop="url">计网</a><h1 id="CrawlerTitle" itemprop="name headline">计网数据链路层</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">琴生</span><time itemprop="dateCreated datePublished" datetime="2023-12-03T11:37:05.000Z" title="发表于 2023-12-03 19:37:05">2023-12-03</time><time itemprop="dateCreated datePublished" datetime="2023-12-22T13:36:17.137Z" title="更新于 2023-12-22 21:36:17">2023-12-22</time></header><blockquote>
+<p>数据链路层是基于物理层不可靠的传输向上层提供可靠的传输，它提供的是相邻两个节点之间可靠的数据传输。本章将学习网络模型中的第二层（即数据链路层）的设计原则。学习内容涉及两台相邻（指两台机器通过一条通信信道连接起来）机器实现可靠有效的完整信息块（称为帧）通信的一些算法，而不像物理层那样只关注单个比特传输。解决通信线路中出错的情况、关于有限的数据传输率、发送时间和接受时间存在的非零延迟等问题。</p>
+</blockquote>
+<blockquote>
+<p>本章内容结构：</p>
+<ol>
+<li>首先介绍数据链路层的关键设计问题，并学习如何考察错误的本质以及如何检测和纠正这些错误。</li>
+<li>然后，我们将学习一系列复杂性逐步递增的协议，每个协议解决了本层中越来越多的问题。</li>
+<li>最后会给出一些数据链路层协议的例子。</li>
+</ol>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c6a52e2155.png"></p>
+<p>上图为本章考试重点，非原书结构，仅供参考。</p>
+<h1 id="数据链路层的设计问题"><a href="#数据链路层的设计问题" class="headerlink" title="数据链路层的设计问题"></a>数据链路层的设计问题</h1><p>数据链路层使用物理层提供的服务在通信信道上发送和接受比特。完成一些功能：</p>
+<ol>
+<li>向网络层提供一个定义良好的服务接口。</li>
+<li>处理传输错误。</li>
+<li>调节数据流，保证慢速的接收方不会被快速的发送方淹没。</li>
+</ol>
+<p>为实现这些目标：，数据链路层从网络层获得数据包，并将之包装成包含：帧头+ 有效载荷（存放数据包）+ 帧尾的帧（frame）。</p>
+<p><strong>数据链路层的工作核心就是帧的管理。</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c6c040e83e.png"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c6c55a859d.png"></p>
+<p>帧的通用结构中前三项称为帧头。</p>
+<h2 id="提供给网络层的服务"><a href="#提供给网络层的服务" class="headerlink" title="提供给网络层的服务"></a>提供给网络层的服务</h2><p>最主要的服务是将数据从源机器的网络层传输到目标机器的网络层。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c6cdd1bc89.png"></p>
+<p>一般情况下，提供以下三种可能的服务：</p>
+<ol>
+<li><p>无确认的无连接服务。</p>
+<p>源机器向目标机器发送独立的帧，目标机器不对这些帧进行确认。不需建立逻辑连接。适用于错误率低或者实时通信（语音传输）的情况。</p>
+</li>
+<li><p>有确认的无连接服务。</p>
+<p>源机器向目标机器发送独立的帧，目标机器会对这些帧进行确认。不需建立逻辑连接。适用于不可靠的信道（无线系统，WiFi）。</p>
+</li>
+<li><p>有确认的有连接服务。</p>
+<p>源机器和目标机器在传输任何一个数据之前要建立一个连接，保证目标机器按照正确的顺序接受每一个帧。适用于长距离且不可靠的链路（卫星信道，长途电话）。</p>
+</li>
+</ol>
+<h2 id="成帧"><a href="#成帧" class="headerlink" title="成帧"></a>成帧</h2><p>为检测错误和纠正错误，数据链路层将比特流拆分成多个离散的帧，为每个帧计算一个称为校验和的短令牌，并将该校验和放在帧中一起传输。为拆分比特流需要解决两个问题：</p>
+<ol>
+<li>帧的边界问题：如何识别帧的边界</li>
+<li>帧的透明传输（填充）问题：如果帧的数据中出现和边界一样的flag 该如何防止被识别为边界</li>
+</ol>
+<p>下面介绍四种成帧方法</p>
+<ol>
+<li><p>Character count（字节计数法）</p>
+<p>用头部的一个字段来标识该帧中的字符数。<br>问题：因为一个传输错误，就会全弄混。很少被使用。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c7171f13a3.png"></p>
+</li>
+<li><p>Flag Bytes with byte stuffing（字节填充的标志字节法）</p>
+<p>发送方使用标志字节（FLAG）作为开始和结束；使用转义字节（ESC）表示其后的字节为数据字节而不是标志字节或转义字节。接收方将收到的数据中的转义字节删除后再传递给网络层。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c71aef37a7.png"></p>
+</li>
+<li><p>Starting and ending flags,with bit stuffing（比特填充的标志比特法）</p>
+<p>使用“01111110”表示帧的开始和结束（帧的边界问题解决），并且在数据中，若遇到5 个连续的比特1，就在其后填入一个比特0（帧的填充问题解决）。接收方除了将首尾的“01111110”删除外，还要将数据中所有5 个连续比特1 其后的比特0 删除。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c71e52f522.png"></p>
+</li>
+<li><p>Physical layer coding violation（物理层编码违禁法）</p>
+<p>使用“不会出现在常规数据中”的冗余比特作为边界。好处是除了开始和结束的填充外，不再需要填充额外的数据。</p>
+</li>
+</ol>
+<h2 id="差错控制"><a href="#差错控制" class="headerlink" title="差错控制"></a>差错控制</h2><p>为确保所有帧按照正确顺序传递给目标机器的网络层：</p>
+<ul>
+<li>发送方发送反馈信息来确保传递可靠。</li>
+<li>引入计时器来防止硬件故障或通信信道出错等原因丢失某一帧使发送方持续等待确认。</li>
+<li>通过序号保证每一帧按照顺序且不会被接收方重复接收。</li>
+</ul>
+<p>具体的确认方式在后面通过协议的形式来讲。</p>
+<h2 id="流量控制"><a href="#流量控制" class="headerlink" title="流量控制"></a>流量控制</h2><p>发送方发送帧的速度超过了接收方能够接收这些帧的速度，而导致丢帧。<br>解决方法：</p>
+<ul>
+<li>基于反馈的流量控制（链路层）。</li>
+<li>基于速率的流量控制（网络层）。</li>
+</ul>
+<h1 id="差错检测和纠正"><a href="#差错检测和纠正" class="headerlink" title="差错检测和纠正"></a>差错检测和纠正</h1><h2 id="纠错码"><a href="#纠错码" class="headerlink" title="纠错码"></a>纠错码</h2><p>推断出被发送的数据是什么。适用于错误发生很频繁的信道，因为再次传输仍可能出错。</p>
+<p>海明码（参考原书p159 ）：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c73b564262.png"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c73b511120.png"></p>
+<h2 id="检错码"><a href="#检错码" class="headerlink" title="检错码"></a>检错码</h2><p>循环冗余校验码（CRC，Cyclic Redundancy Check，也称作多项式编码)，推断是否发生错误。适用于高度可靠的信道，错误偶尔发生时，只需重传整个数据块即可。注意有一定的误判率。<br>步骤：（以下面算式为例讲解，具体原理参见课本P165）</p>
+<ol>
+<li>收发双方商定一个比帧短且头尾都是1 的01 串叫做生成多项式，如下的10011</li>
+<li>帧的后面附上生成多项式长度减一个0 后，作为被除数对生成多项式模2 除，得到<br>商和余数，如10011 长度为5，所以附上了4 个0</li>
+<li>若帧与余数合并以后在接收方被生成多项式整除，那么认为传递的过程没有出错</li>
+</ol>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c7680023ac.png"></p>
+<p>模2除原则：列竖式的方式同除法，但是模2 除法中加法无进位，减法无借位，即加减皆等同于异或，而商0 还是1 由被除数首位决定，首位是1 商1，否则商0。</p>
+<h1 id="基本数据链路层协议"><a href="#基本数据链路层协议" class="headerlink" title="基本数据链路层协议"></a>基本数据链路层协议</h1><p>组成帧的四个字段：kind、seq、ack 和info。前三个包含控制信息，称为帧头，最后一个可能包含了要被传输的实际数据。</p>
+<h2 id="一个乌托邦式的单工协议（协议1）"><a href="#一个乌托邦式的单工协议（协议1）" class="headerlink" title="一个乌托邦式的单工协议（协议1）"></a>一个乌托邦式的单工协议（协议1）</h2><ul>
+<li>不需考虑任何错误情况：数据单向传输，双方总是就绪，数据处理时间不计，缓存空间无限大，通信信道永不丢帧。</li>
+<li>这是一个完全不现实（理想化）的协议，所以称为“乌托邦” 协议。</li>
+<li>发送过程是一个无限的while 循环，它尽可能快速地把数据放到线路上。无差错控制或者流量控制方面的限制。接受过程一直等待一个未损坏的帧到达。（发送速率和接收速率必须一样快）</li>
+</ul>
+<h2 id="无错信道上的单工停-等式协议（协议2）"><a href="#无错信道上的单工停-等式协议（协议2）" class="headerlink" title="无错信道上的单工停-等式协议（协议2）"></a>无错信道上的单工停-等式协议（协议2）</h2><p>单向数据传输，发送方网络层一直有无限的数据要发送， 信道不会出错，从不损坏或丢失帧，发送方需等待接收方确认帧返回后才发送下一帧。如果接收方不反馈应答信号，则发送方必须一直等待，然后就陷入等待接收方确认信息的过程中，因而传输效率低。</p>
+<h2 id="有错信道上的单工停-等式协议（协议3）"><a href="#有错信道上的单工停-等式协议（协议3）" class="headerlink" title="有错信道上的单工停-等式协议（协议3）"></a>有错信道上的单工停-等式协议（协议3）</h2><p>信道存在噪音。需要计时器与序号配合，需要超时重传机制。</p>
+<h1 id="滑动窗口协议"><a href="#滑动窗口协议" class="headerlink" title="滑动窗口协议"></a>滑动窗口协议</h1><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>滑动窗口（sliding window）：为了便于理解，可以认为数据是一条传送带，而滑动窗口中的数据是当前准备处理的数据。一旦窗口的第一条数据被确认处理结束，窗口就会继续向后滑动以处理后面的数据。下面是发送方的发送窗口形象化的表示：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c785d76a99.png"></p>
+<ul>
+<li>捎带确认（piggybacking）：暂时延缓确认以便将确认信息搭载在下一个出境数据帧上的技术。捎带确认通常与累计确认一同使用，更好的利用了信道的可用带宽。</li>
+<li>期望确认：收到数据帧以后向发送方发送期望对方发送的下一帧的序号。</li>
+<li>累计确认（cumulative acknowledgement）：当n 号帧的确认到达，n-1 号帧、n-2号帧等都会自动被确认。</li>
+<li>否定确认（NAK）：接收方检测到错误时发送的否定确认，实际是一个重传请求，在NAK中指定了要重传的帧。</li>
+<li>发送窗口（sending window）：发送方总维持着一组序号，分别对应于允许它发送的帧，我们称这些帧落在发送窗口。</li>
+<li>接收窗口(receiving window):接收方维持着的一个窗口对应于一组允许它接受的帧。</li>
+</ul>
+<h2 id="1-位滑动窗口协议（协议4）"><a href="#1-位滑动窗口协议（协议4）" class="headerlink" title="1 位滑动窗口协议（协议4）"></a>1 位滑动窗口协议（协议4）</h2><p>（发送窗口大小&#x3D;1，接收窗口大小&#x3D;1）</p>
+<p>当接收窗口大小为1 时，可保证帧的有序接收，但效率较低。</p>
+<p>源站发送单个帧后必须等待确认，在目的站的确认到达源站之前，源站不能发送其他数据帧。这是因为发送窗口大小仅为1，必须用来保存当前未确认的帧以超时重传。</p>
+<p>发送方必须在内存中保存所有的帧，因此如果最大窗口的尺寸为n，则发送方需要n 个缓冲区才存放未被确认的帧。</p>
+<h2 id="回退N-协议（协议5）"><a href="#回退N-协议（协议5）" class="headerlink" title="回退N 协议（协议5）"></a>回退N 协议（协议5）</h2><p>（发送窗口大小&gt;1，接收窗口大小&#x3D;1）</p>
+<p>发送方按照顺序向对方发送帧，在收到对方的确认以后窗口向后滑动，若当前窗口中的第一个帧出现超时，那么回退到这个帧重新发送所有的帧。</p>
+<p>而因为接收窗口大小为1，除了数据链路层必须要递交给网络层的下一帧外，接收方拒绝接受任何帧。如果在计时器超时以前，发送方的窗口已被填满，则管道将变为空闲，最终，发送方将超时，并且按照顺序重传所有未被确认的帧，从那个受损或者丢失的帧开始。</p>
+<p>一般使用累计确认。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c79b03033b.png"></p>
+<h2 id="选择重传协议（协议6）"><a href="#选择重传协议（协议6）" class="headerlink" title="选择重传协议（协议6）"></a>选择重传协议（协议6）</h2><p>（发送窗口大小&gt;1，接收窗口大小&gt;1）</p>
+<p>发送方按照窗口的顺序依次发送帧给接收方，而接收方检查该帧是否可以落在接收窗口内，即以前没有接收过且该序号在窗口可接收的范围内，如果可以那么不管这一帧是否为网络层所期望的下一个数据包都接收该帧并暂存于缓冲区内。该帧会一直保存在数据链路层中直到所有序号比它小的帧已经按顺序递交给网络层，它才能被传递给网络层。</p>
+<p>辅助计时器：在发送方的计时器超时之前，没有出现需要发送的反向流量，则发送一个单独的确认帧，而发送的时间间隔由辅助计时器决定，因此辅助计时器的超时间隔应该明显短于数据帧关联的计时器的间隔。</p>
+<p>除ACK，选择重传还有否定确认，当接收方发现坏帧丢弃时，立刻发送一个NAC 给发送方告知该帧未收到让它重传，以防超时。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/03/656c79b052d99.png"></p>
+<p>选择重传和回退N 实际是带宽使用效率与数据链路层缓存空间之间的权衡。</p>
+<h1 id="数据链路协议实例"><a href="#数据链路协议实例" class="headerlink" title="数据链路协议实例"></a>数据链路协议实例</h1><p>这里要考察的是那些出现在Internet 两种常见情形下的数据链路协议，这些协议主要用在点到点的线路上。第一种情形是通过广域网中的SONET 光纤链路发送数据包。例如，这些链路被广泛用于连接一个ISP 网络中位于不同位置的路由器。</p>
+<p>第二种情形是运行在Internet 边缘的电话网络本地回路上的ADSL 链路。这些链接把成千上百万的个人和企业连接到Internet 上。</p>
+<p>针对上述这些使用场景Internet 需要点到点链路，还会用到拨号调制解调器、租用线路和线缆调制解调器等。所谓点到点协议（Point-to-Point Protocol) 的标准协议就是使用这些链路来发送数据包。PPP 由RFC1661 定义，并在RFC1662 中得到进一步的阐述(Simpson, 1994a， 1994b)。 SONET 和ADSL 链路都釆用了PPP, 但在使用方式上有所不同。</p>
+<p>详见原书。</p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg" title="头像" alt="头像"></a><div class="post-copyright__author_name">琴生</div><div class="post-copyright__author_desc">记录一名计算机小白的生涯</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://srj2003.top/2023/12/03/%E8%AE%A1%E7%BD%91%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://srj2003.top/2023/12/03/%E8%AE%A1%E7%BD%91%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/')">计网数据链路层</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"><div class="post-reward" onclick="anzhiyu.addRewardMask()"><div class="reward-button button--animated" title="赞赏作者"><i class="anzhiyufont anzhiyu-icon-hand-heart-fill"></i>打赏作者</div><div class="reward-main"><div class="reward-all"><span class="reward-title">感谢你赐予我前进的力量</span><ul class="reward-group"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul><a class="reward-main-btn" href="/about/#about-reward" target="_blank"><div class="reward-text">赞赏者名单</div><div class="reward-dec">因为你们的支持让我意识到写文章的价值🙏</div></a></div></div></div><div id="quit-box" onclick="anzhiyu.removeRewardMask()" style="display: none"></div></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://srj2003.top/2023/12/03/%E8%AE%A1%E7%BD%91%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=计网数据链路层&amp;url=http://srj2003.top/2023/12/03/%E8%AE%A1%E7%BD%91%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/&amp;pic=https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://srj2003.top" target="_blank">琴生</a>！</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"><a class="post-meta__box__tags" href="/tags/%E8%AE%A1%E7%BD%91/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>计网<span class="tagsPageCount">8</span></a></div></div></div><div class="post_share"><div class="social-share" data-image="https://bu.dusays.com/2023/12/20/6582a8c3b5077.webp" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/12/01/%E8%AE%A1%E7%BD%91%E7%89%A9%E7%90%86%E5%B1%82%EF%BC%88%E4%BA%8C%EF%BC%89/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">计网物理层（二）</div></div></a></div><div class="next-post pull-right"><a href="/2023/12/04/%E8%AE%A1%E7%BD%91%E4%BB%8B%E8%B4%A8%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E5%AD%90%E5%B1%82/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">计网介质访问控制子层</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="anzhiyufont anzhiyu-icon-thumbs-up fa-fw" style="font-size: 1.5rem; margin-right: 4px"></i><span>喜欢这篇文章的人也看了</span></div><div class="relatedPosts-list"><div><a href="/2023/12/15/%E8%AE%A1%E7%BD%91%E4%BC%A0%E8%BE%93%E5%B1%82/" title="计网传输层"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2023-12-15</div><div class="title">计网传输层</div></div></a></div><div><a href="/2023/11/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%BC%95%E8%A8%80/" title="计算机网络引言"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2023-11-30</div><div class="title">计算机网络引言</div></div></a></div><div><a href="/2023/12/04/%E8%AE%A1%E7%BD%91%E4%BB%8B%E8%B4%A8%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E5%AD%90%E5%B1%82/" title="计网介质访问控制子层"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2023-12-04</div><div class="title">计网介质访问控制子层</div></div></a></div><div><a href="/2023/11/30/%E8%AE%A1%E7%BD%91%E7%89%A9%E7%90%86%E5%B1%82%EF%BC%88%E4%B8%80%EF%BC%89/" title="计网物理层（一）"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2023-11-30</div><div class="title">计网物理层（一）</div></div></a></div><div><a href="/2023/12/01/%E8%AE%A1%E7%BD%91%E7%89%A9%E7%90%86%E5%B1%82%EF%BC%88%E4%BA%8C%EF%BC%89/" title="计网物理层（二）"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2023-12-01</div><div class="title">计网物理层（二）</div></div></a></div><div><a href="/2023/11/25/%E8%AE%A1%E7%BD%91%E7%BD%91%E7%BB%9C%E5%B1%82-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95/" title="计网网络层-拥塞控制算法"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" alt="cover"><div class="content is-center"><div class="date"><i class="anzhiyufont anzhiyu-icon-calendar-days fa-fw"></i> 2023-11-25</div><div class="title">计网网络层-拥塞控制算法</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> 评论</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)" style="display: none">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><img class="avatar-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/08/24/64e6ce9c507bb.png" alt="status"/></div></div><div class="author-info__description"><div style="line-height:1.38;margin:0.6rem 0;text-align:justify;color:rgba(255, 255, 255, 0.8);">谨以此站记录我的学习与生活。</div></div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">琴生</h1><div class="author-info__desc">记录一名计算机小白的生涯</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/sunrogjun" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:srj15063104976@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope faa-tada"></i></a></div></div></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bullhorn anzhiyu-shake"></i><span>公告</span></div><div class="announcement_content">如果阅读过程中遇到问题，请及时评论或者留言，看到了会在第一时间给出回复。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>文章目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82%E7%9A%84%E8%AE%BE%E8%AE%A1%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">数据链路层的设计问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%90%E4%BE%9B%E7%BB%99%E7%BD%91%E7%BB%9C%E5%B1%82%E7%9A%84%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.1.</span> <span class="toc-text">提供给网络层的服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%90%E5%B8%A7"><span class="toc-number">1.2.</span> <span class="toc-text">成帧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%AE%E9%94%99%E6%8E%A7%E5%88%B6"><span class="toc-number">1.3.</span> <span class="toc-text">差错控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6"><span class="toc-number">1.4.</span> <span class="toc-text">流量控制</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B7%AE%E9%94%99%E6%A3%80%E6%B5%8B%E5%92%8C%E7%BA%A0%E6%AD%A3"><span class="toc-number">2.</span> <span class="toc-text">差错检测和纠正</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%A0%E9%94%99%E7%A0%81"><span class="toc-number">2.1.</span> <span class="toc-text">纠错码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A3%80%E9%94%99%E7%A0%81"><span class="toc-number">2.2.</span> <span class="toc-text">检错码</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82%E5%8D%8F%E8%AE%AE"><span class="toc-number">3.</span> <span class="toc-text">基本数据链路层协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E4%B9%8C%E6%89%98%E9%82%A6%E5%BC%8F%E7%9A%84%E5%8D%95%E5%B7%A5%E5%8D%8F%E8%AE%AE%EF%BC%88%E5%8D%8F%E8%AE%AE1%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">一个乌托邦式的单工协议（协议1）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A0%E9%94%99%E4%BF%A1%E9%81%93%E4%B8%8A%E7%9A%84%E5%8D%95%E5%B7%A5%E5%81%9C-%E7%AD%89%E5%BC%8F%E5%8D%8F%E8%AE%AE%EF%BC%88%E5%8D%8F%E8%AE%AE2%EF%BC%89"><span class="toc-number">3.2.</span> <span class="toc-text">无错信道上的单工停-等式协议（协议2）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%89%E9%94%99%E4%BF%A1%E9%81%93%E4%B8%8A%E7%9A%84%E5%8D%95%E5%B7%A5%E5%81%9C-%E7%AD%89%E5%BC%8F%E5%8D%8F%E8%AE%AE%EF%BC%88%E5%8D%8F%E8%AE%AE3%EF%BC%89"><span class="toc-number">3.3.</span> <span class="toc-text">有错信道上的单工停-等式协议（协议3）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E5%8D%8F%E8%AE%AE"><span class="toc-number">4.</span> <span class="toc-text">滑动窗口协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">4.1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BD%8D%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E5%8D%8F%E8%AE%AE%EF%BC%88%E5%8D%8F%E8%AE%AE4%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">1 位滑动窗口协议（协议4）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9E%E9%80%80N-%E5%8D%8F%E8%AE%AE%EF%BC%88%E5%8D%8F%E8%AE%AE5%EF%BC%89"><span class="toc-number">4.3.</span> <span class="toc-text">回退N 协议（协议5）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E9%87%8D%E4%BC%A0%E5%8D%8F%E8%AE%AE%EF%BC%88%E5%8D%8F%E8%AE%AE6%EF%BC%89"><span class="toc-number">4.4.</span> <span class="toc-text">选择重传协议（协议6）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%8D%8F%E8%AE%AE%E5%AE%9E%E4%BE%8B"><span class="toc-number">5.</span> <span class="toc-text">数据链路协议实例</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>最近发布</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/12/19/SDU%E8%BD%AF%E4%BB%B6%E5%AD%A6%E9%99%A2%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%80%83%E8%AF%95%E7%BA%B2%E8%A6%81/" title="SDU软件学院软件工程考试纲要"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/12/20/6582a8c3b5077.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SDU软件学院软件工程考试纲要"/></a><div class="content"><a class="title" href="/2023/12/19/SDU%E8%BD%AF%E4%BB%B6%E5%AD%A6%E9%99%A2%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%80%83%E8%AF%95%E7%BA%B2%E8%A6%81/" title="SDU软件学院软件工程考试纲要">SDU软件学院软件工程考试纲要</a><time datetime="2023-12-19T03:47:17.000Z" title="发表于 2023-12-19 11:47:17">2023-12-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/15/%E8%AE%A1%E7%BD%91%E4%BC%A0%E8%BE%93%E5%B1%82/" title="计网传输层"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计网传输层"/></a><div class="content"><a class="title" href="/2023/12/15/%E8%AE%A1%E7%BD%91%E4%BC%A0%E8%BE%93%E5%B1%82/" title="计网传输层">计网传输层</a><time datetime="2023-12-15T07:02:24.000Z" title="发表于 2023-12-15 15:02:24">2023-12-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/" title="软件工程过程和生命周期建模"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://pixabay.com/zh/illustrations/web-development-website-design-7265717/" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="软件工程过程和生命周期建模"/></a><div class="content"><a class="title" href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/" title="软件工程过程和生命周期建模">软件工程过程和生命周期建模</a><time datetime="2023-12-06T11:05:44.000Z" title="发表于 2023-12-06 19:05:44">2023-12-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E6%A6%82%E8%BF%B0/" title="软件工程概述"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://cdn.pixabay.com/photo/2016/11/23/14/45/coding-1853305_1280.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="软件工程概述"/></a><div class="content"><a class="title" href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E6%A6%82%E8%BF%B0/" title="软件工程概述">软件工程概述</a><time datetime="2023-12-06T10:54:44.000Z" title="发表于 2023-12-06 18:54:44">2023-12-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/05/%E8%AE%A1%E7%BD%91%E7%BD%91%E7%BB%9C%E5%B1%82/" title="计网网络层"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计网网络层"/></a><div class="content"><a class="title" href="/2023/12/05/%E8%AE%A1%E7%BD%91%E7%BD%91%E7%BB%9C%E5%B1%82/" title="计网网络层">计网网络层</a><time datetime="2023-12-05T13:50:11.000Z" title="发表于 2023-12-05 21:50:11">2023-12-05</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2023 By <a class="footer-bar-link" href="/" title="琴生" target="_blank">琴生</a></div></div><div id="footer-type-tips"></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">文章</div><div class="length-num">14</div></a><a href="/tags/" title="tag"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/" title="category"><div class="headline">分类</div><div class="length-num">2</div></a></div><span class="sidebar-menu-item-title">功能</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="显示模式"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>显示模式</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://blog.anheyu.com/" title="博客"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/img/favicon.ico" alt="博客"/><span class="back-menu-item-text">博客</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">项目</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://image.anheyu.com/" title="安知鱼图床"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://image.anheyu.com/favicon.ico" alt="安知鱼图床"/><span class="back-menu-item-text">安知鱼图床</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 时间轴</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 社交</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友链</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> 关于本人</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/album/"><i class="anzhiyufont anzhiyu-icon-images faa-tada" style="font-size: 0.9em;"></i><span> 相册集</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 随笔</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>3</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>8</sup></a><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" style="font-size: 0.88rem;">软件工程<sup>3</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="8152976493" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.7"></meting-js></div><div id="algolia-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="search-wrap"><div id="algolia-search-input"></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-info"><div class="algolia-stats"></div><div class="algolia-poweredBy"></div></div></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://y.qq.com/n/ryqq/playlist/8802438608&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@17.8.5/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("04/01/2021 00:00:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2023 By 安知鱼 V1.6.12",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 琴生 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script src="https://cdn.cbd.int/algoliasearch@4.18.0/dist/algoliasearch-lite.umd.js"></script><script src="https://cdn.cbd.int/instantsearch.js@4.60.0/dist/instantsearch.production.min.js"></script><script src="/js/search/algolia.js"></script><div class="js-pjax"><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.srj2003.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.25/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.srj2003.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script>window.addEventListener('load', () => {
+  const changeContent = (content) => {
+    if (content === '') return content
+
+    content = content.replace(/<img.*?src="(.*?)"?[^\>]+>/ig, '[图片]') // replace image link
+    content = content.replace(/<a[^>]+?href=["']?([^"']+)["']?[^>]*>([^<]+)<\/a>/gi, '[链接]') // replace url
+    content = content.replace(/<pre><code>.*?<\/pre>/gi, '[代码]') // replace code
+    content = content.replace(/<[^>]+>/g,"") // remove html tag
+
+    if (content.length > 150) {
+      content = content.substring(0,150) + '...'
+    }
+    return content
+  }
+
+  const getComment = () => {
+    const runTwikoo = () => {
+      twikoo.getRecentComments({
+        envId: 'https://twikoo.srj2003.top/',
+        region: '',
+        pageSize: 6,
+        includeReply: true
+      }).then(function (res) {
+        const twikooArray = res.map(e => {
+          return {
+            'content': changeContent(e.comment),
+            'avatar': e.avatar,
+            'nick': e.nick,
+            'url': e.url + '#' + e.id,
+            'date': new Date(e.created).toISOString()
+          }
+        })
+
+        saveToLocal.set('twikoo-newest-comments', JSON.stringify(twikooArray), 10/(60*24))
+        generateHtml(twikooArray)
+      }).catch(function (err) {
+        const $dom = document.querySelector('#card-newest-comments .aside-list')
+        $dom.textContent= "无法获取评论，请确认相关配置是否正确"
+      })
+    }
+
+    if (typeof twikoo === 'object') {
+      runTwikoo()
+    } else {
+      getScript('https://cdn.cbd.int/twikoo@1.6.25/dist/twikoo.all.min.js').then(runTwikoo)
+    }
+  }
+
+  const generateHtml = array => {
+    let result = ''
+
+    if (array.length) {
+      for (let i = 0; i < array.length; i++) {
+        result += '<div class=\'aside-list-item\'>'
+
+        if (true) {
+          const name = 'data-lazy-src'
+          result += `<a href='${array[i].url}' class='thumbnail'><img ${name}='${array[i].avatar}' alt='${array[i].nick}'><div class='name'><span>${array[i].nick} </span></div></a>`
+        }
+        
+        result += `<div class='content'>
+        <a class='comment' href='${array[i].url}' title='${array[i].content}'>${array[i].content}</a>
+        <time datetime="${array[i].date}">${anzhiyu.diffDate(array[i].date, true)}</time></div>
+        </div>`
+      }
+    } else {
+      result += '没有评论'
+    }
+
+    let $dom = document.querySelector('#card-newest-comments .aside-list')
+    $dom && ($dom.innerHTML= result)
+    window.lazyLoadInstance && window.lazyLoadInstance.update()
+    window.pjax && window.pjax.refresh($dom)
+  }
+
+  const newestCommentInit = () => {
+    if (document.querySelector('#card-newest-comments .aside-list')) {
+      const data = saveToLocal.get('twikoo-newest-comments')
+      if (data) {
+        generateHtml(JSON.parse(data))
+      } else {
+        getComment()
+      }
+    }
+  }
+
+  newestCommentInit()
+  document.addEventListener('pjax:complete', newestCommentInit)
+})</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/qrcodejs/1.0.0/qrcode.min.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
