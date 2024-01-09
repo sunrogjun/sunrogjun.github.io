@@ -1,0 +1,812 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Nosql复习 | 琴生</title><meta name="keywords" content="Nosql"><meta name="author" content="琴生"><meta name="copyright" content="琴生"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#f7f9fe"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Nosql复习"><meta name="application-name" content="Nosql复习"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#f7f9fe"><meta property="og:type" content="article"><meta property="og:title" content="Nosql复习"><meta property="og:url" content="http://srj2003.top/2024/01/09/Nosql%E5%A4%8D%E4%B9%A0/index.html"><meta property="og:site_name" content="琴生"><meta property="og:description" content="1.各种aaS2.传统ACID原子性：undolog ——在SQL执行前先于数据持久化到磁盘 持久性：都要过磁盘IO（巨大开销）——引入BufferPool机制 隔离性：隔离级别越高开销越大，同时并发程度下降 一致性：一致性是事务追求的最终目标，前面提到的原子性、持久性和隔离性，都是为了保证数据库状"><meta property="og:locale" content="zh-CN"><meta property="og:image" content="https://bu.dusays.com/2023/12/29/658ebf7e39c30.jpg"><meta property="article:author" content="琴生"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://bu.dusays.com/2023/12/29/658ebf7e39c30.jpg"><meta name="description" content="1.各种aaS2.传统ACID原子性：undolog ——在SQL执行前先于数据持久化到磁盘 持久性：都要过磁盘IO（巨大开销）——引入BufferPool机制 隔离性：隔离级别越高开销越大，同时并发程度下降 一致性：一致性是事务追求的最终目标，前面提到的原子性、持久性和隔离性，都是为了保证数据库状"><link rel="shortcut icon" href="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg"><link rel="canonical" href="http://srj2003.top/2024/01/09/Nosql%E5%A4%8D%E4%B9%A0/"><link rel="preconnect" href="//cdn.cbd.int"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  linkPageTop: {"enable":true,"title":"与优秀博主们共同进步","addFriendPlaceholder":null},
+  peoplecanvas: undefined,
+  postHeadAiDescription: undefined,
+  diytitle: undefined,
+  LA51: undefined,
+  greetingBox: undefined,
+  twikooEnvId: 'https://twikoo.srj2003.top/',
+  commentBarrageConfig:undefined,
+  root: '/',
+  preloader: {"source":3},
+  friends_vue_info: undefined,
+  navMusic: true,
+  mainTone: undefined,
+  authorStatus: {"skills":["🤖️ 数码科技爱好者","🔍 前沿技术关注者","🔨 鼓捣新奇小玩意","🤝 天马行空点子多","🏃 脚踏实地行动派","🧱 默默行动小i人"]},
+  algolia: {"appId":"HDVGOX3R4B","apiKey":"05439fffa3742185ea0c73d8f3b53e1d","indexName":"blog_search","hits":{"per_page":6},"languages":{"input_placeholder":"输入关键词后按下回车查找","hits_empty":"找不到您查询的内容：${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":330},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    simplehomepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"作者: 琴生","link":"链接: ","source":"来源: 琴生","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。","copySuccess":"复制成功，复制和转载请标注本文地址"}},
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.min.js',
+      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  shortcutKey: undefined,
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  configTitle: '琴生',
+  title: 'Nosql复习',
+  postAI: '',
+  pageFillDescription: '1.各种aaS, 2.传统ACID, 3.why NoSQL, 关系型数据库瓶颈, NoSQL缺点, why NOSQL种类多, 关系型数据库与非关系型数据库的区别, 关系型数据库分布式（如MySQL）, 4.一致性理论模型, CAP理论, 一致性强弱, BASE模型, NWR模型——一致性, 两阶段提交协议——分布式事务, 5.数据复制, 6.文档数据库（MongoDB）, 文档是数据库中的主要概念, 文档数据库特性, 场景, 优点, 缺点, MongoDB, CouchDB, 总结, 7.列族数据库（Hbase）, 和行式比较, HBase, Cassandra, MapReduce, HBase二级索引, 8.键值对数据库（Redis）, 优缺点适用情景, Redis, DynamoDB, 9.图数据库（Neo4j）, why图数据库？, Neo4j：, 10.汇总, 数据库汇总, 案例汇总, 总结各种传统原子性在执行前先于数据持久化到磁盘持久性都要过磁盘巨大开销引入机制隔离性隔离级别越高开销越大同时并发程度下降一致性一致性是事务追求的最终目标前面提到的原子性持久性和隔离性都是为了保证数据库状态的一致性支持事务就意味着关系型数据库瓶颈在上面可以看到传统数据库为了保证其特性开销是相当大的几乎所有操作都要到磁盘当中因此在高并发条件下磁盘就很容易导致性能瓶颈最终表现是在高并发条件下读写慢即使有各类缓冲池存在设计初衷不同对内存的优化不够好此外在基于的结构当中数据库是最难进行横向扩展的当一个应用系统的用户量和访问量与日俱增的时候数据库却没有办法像和那样简单的通过添加更多的硬件和服务节点来扩展性能和负载能力对于很多需要提供小时不间断服务的网站来说对数据库系统进行升级和扩展是非常痛苦的事情往往需要停机维护和数据迁移对网站来说关系型数据库的很多特性不再需要了事务一致性允许放弃一部分一致性来换取高可用关系型数据库在对事物一致性的维护中有很大的开销而现在很多系统对事物的读写一致性都不高读写实时性对关系数据库来说插入一条数据之后立刻查询是肯定可以读出这条数据的但是对于很多应用来说并不要求这么高的实时性比如发一条消息之后过几秒乃至十几秒之后才看到这条动态是完全可以接受的对海量数据的高效率存储和访问的需求类似这样的网站每天用户产生海量的用户动态以为例一个月就达到了亿条用户动态对于关系数据库来说在一张亿条记录的表里面进行查询效率是极其低下乃至不可忍受的再例如大型网站的用户登录系统例如腾讯盛大动辄数以亿计的帐号关系数据库也很难应付或者说多表联查或大表查询带来的开销不可接受结构化数据在关系型数据库中导致性能欠佳的最主要原因是多表的关联查询以及复杂的数据分析类型的复杂报表查询关系型数据库中的表都是存储一个格式化的数据结构每个元组字段的组成都是一样即使不是每个元组都需要所有的字段但数据库会为每个元组分配所有的字段这样的结构可以便于标语表之间进行链接等操作但从另一个角度来说它也是关系型数据库性能瓶颈的一个因素不会局限于固定的结构可以减少一些时间和空间的开销键值对数据库不用多表联查固定结构带来的是可以复杂查询但开销上升拓展性变差总结对数据库高并发读写的需求大量磁盘也可以引出分布式有新的硬件如等变相跳开了瓶颈对海量数据的高效率存储和访问的需求大表多表查询结构化数据分析型业务大数据下的查询对数据库的高可扩展性和高可用性的需求分布式半结构化非结构化数据存储大数据下模式和数据的关系模式难以先确定甚至要反推模式来处理其他领域问题缺点非关系型数据库由于很少的约束他也不能够提供像所提供的这种对于字段属性值情况的查询并且难以体现设计的完整性他只适合存储一些较为简单的数据对于需要进行较复杂查询的数据数据库显的更为合适非关系型数据库的实质非关系型数据库产品是传统关系型数据库的功能阉割版本通过减少用不到或很少用的功能来大幅度提高产品性能具体应用需要权衡种类多大数据环境下不可能存在一种数据库可以满足所有需求是一类数据库的统称关系型数据库与非关系型数据库的区别关系型数据库的最大特点就是事务的一致性传统的关系型数据库读写操作都是事务的具有的特点这个特性使得关系型数据库可以用于几乎所有对一致性有要求的系统中如典型的银行系统但是在网页应用中尤其是应用中一致性却不是显得那么重要用户看到的内容和用户看到同一用户内容更新不一致是可以容忍的或者说两个人看到同一好友的数据更新的时间差那么几秒是可以容忍的因此关系型数据库的最大特点在这里已经无用武之地起码不是那么重要了相反地关系型数据库为了维护一致性所付出的巨大代价就是其读写性能比较差而像微博这类的应用对并发读写能力要求极高关系型数据库已经无法应付在读方面传统上为了克服关系型数据库缺陷提高性能都是增加一级来静态化网页而在中变化太快已经无能为力了因此必须用新的一种数据结构存储来代替关系数据库关系数据库的另一个特点就是其具有固定的表结构因此其扩展性极差而在中系统的升级功能的增加往往意味着数据结构巨大变动这一点关系型数据库也难以应付需要新的结构化数据存储于是非关系型数据库应运而生由于不可能用一种数据结构化存储应付所有的新的需求因此非关系型数据库严格上不是一种数据库应该是一种数据结构化存储方法的集合必须强调的是数据的持久存储尤其是海量数据的持久存储还是需要一种关系数据库为什么并发读写慢反之其他两个为什么快的开销传统的全部要过硬盘结构性数据单点分布式关系型数据库分布式如由于关系数据库支持事务切分可能引入分布式事务但分布式事务对系统资源消耗大性能也并不高跨节点的和排序操作尽管能在数据库端解决但可能耗费大量的网络资源通常推荐在应用层进行数据的整合这需要应用层做很多额外的工作也加重了应用服务器的负担一致性理论模型理论理论一个分布式系统不可能满足一致性可用性和分区容错性这三个需求最多只能同时满足两个可用性一直可以正常的做读写操作简单而言就是客户端一直可以正常访问并得到系统的正常响应用户角度来看就是不会出现系统操作失败或者访问超时等问题一致性在分布式系统完成某写操作后任何读操作都应该获取到该写操作写入的那个最新的值相当于要求分布式系统中的各节点时时刻刻保持数据的一致性分区容错性指的分布式系统中的某个节点或者网络出现了故障的时候其他节点仍然能对外提供满足一致性和可用性的服务也就是说部分故障不影响整体使用事实上在设计分布式系统时都会考虑到硬件网络等各种原因造成的故障所以即使部分节点或者网络出现故障也要求整个系统还是要继续使用的分区可用性不可以舍弃则只能在可用性和一致性中做取舍取舍优先保证一致性和可用性放弃分区容错这也意味着放弃系统的扩展性系统不再是分布式的有违设计的初衷非分布式系统关系型数据库优先保证一致性和分区容错性放弃可用性在数据一致性要求比较高的场合如是比较常见的做法一旦发生网络故障或者消息丢失就会牺牲用户体验等恢复之后用户才逐渐能访问分布式数据库优先保证可用性和分区容错性放弃一致性放弃一致性不是说一致性就不保证了而是逐渐的变得一致保证最终一致性模型分析时会发现不少数据库宣称同时高可用和强一致这时要看错误恢复如他某个错误后会暂停服务并作放弃了可用则为但这时别的依然在服务所以是降低了可用性不是完全不可用一致性强弱强一致性即时一致性假如先写入了一个值到存储系统存储系统保证后续的读取操作都将返回最新值单副本数据容易保证强一致性多副本数据需要使用分布式事务协议弱一致性假如先写入了一个值到存储系统存储系统不能保证后续的读取操作能读取到最新值不一致性窗口从写入到后续操作读取到最新值这一段时间窗口的大小依赖于以下的几个因素交互延迟系统的负载以及复制技术中的个数这个可以理解为模式中的个数最终一致性是弱一致性的一种特例协议保证写强一致读顺序一致模型基本可用指分布式系统在出现不可预知故障的时候允许损失部分可用性但请注意这绝不等价于系统不可用可能出现如响应时间功能上的损失软状态柔性事务指允许系统中的数据存在中间状态并认为该中间状态的存在不会影响系统的整体可用性即允许系统在不同节点的数据副本之间进行数据同步的过程存在延时即存在不一致性窗口最终一致性强调的是系统中所有的数据副本在经过一段时间的同步后最终能够达到一个一致的状态因此最终一致性的本质是需要系统保证最终数据能够达到一致而不需要实时保证系统数据的强一致性在没有发生故障的前提下数据达到一致状态的时间延迟取决于网络延迟系统负载和数据复制方案设计等因素即不一致性窗口大小当然也和分布式事务协议有关模型一致性复制的节点数量即副本数成功读操作的最小节点数成功写操作的最小节点数只需就可以保证强一致性因为读取数据的节点和被同步写入的节点是有重叠的中使用协议两阶段提交保证写强一致而不是全部强一致他读是顺序一致根据理论一致性可用性和分区容错性最多只能满足两个因此需要在一致性和可用性之间做一平衡如果要高的一致性那么就配置这个时候可用性特别是写操作的性能就会大大降低如果想要高的可用性那么此时就需要放松一致性的要求此时可以配置这样使得写操作延迟最低同时通过异步的机制更新剩余的个节点两阶段提交协议分布式事务以保证分布式事务中要么所有参与的进程都提交事务成功要么都取消事务这样做可以在分布式环境中保持中原子性在两阶段提交协议中包含了两种角色参与者就是实际处理事务的机器协调者就是其中一台单独的处理分布式事务的机器两个阶段投票阶段在请求阶段协调者将通知事务参与者准备提交或取消事务然后进入表决过程在表决过程中参与者将告知协调者自己的决策同意事务参与者本地作业执行成功或取消本地作业执行故障提交阶段协调者将基于第一个阶段的投票结果进行决策提交或取消当且仅当所有的参与者同意提交事务协调者才通知所有的参与者提交事务否则协调者将通知所有的参与者取消事务优点实现简单缺点同步阻塞问题执行过程中所有参与节点都是事务阻塞型的当参与者占有公共资源时其他第三方节点访问公共资源不得不处于阻塞状态单点故障由于协调者的重要性一旦协调者发生故障参与者会一直阻塞下去尤其在第二阶段协调者发生故障那么所有的参与者还都处于锁定事务资源的状态中而无法继续完成事务操作如果是协调者挂掉可以重新选举一个协调者但是无法解决因为协调者宕机导致的参与者处于阻塞状态的问题可以重选举但依然有阻塞开销数据不一致请求提交时部分节点挂掉会导致数据不一致日志可以解决二阶段无法解决的问题协调者发出后宕机接收者也宕机则事务出现不确定数据复制复制是将数据同步在多个服务器的过程复制至少需要两个节点一个是主节点负责处理客户端请求其余的都是从节点负责复制主节点上的数据常见有一主一从一主多从主节点记录在其上的所有操作从节点定期轮询主节点获取这些操作然后对自己的数据副本执行这些操作从而保证从节点的数据与主节点一致优点安全性高可用灾难恢复无需停机维护分布式读取数据文档数据库文档是数据库中的主要概念可存放并获取文档其格式可以是等数据库中的文档彼此相似但结构不必完全相同不像关系型数据库那样表格中每行数据的模式都要相同模式相似但可以不同向文档中新增属性时既无需预先定义也不用修改已有文档内容文档数据库特性场景应用在应用服务器的日志记录主要用来存储一些监控数据对开发人员来说真的很方便增加字段不用改表结构而且学习成本极低使用做了快递应用将送快递骑手快递商家的信息包含位置信息存储在然后通过的地理位置查询这样很方便的实现了查找附近的商家骑手等功能使得快递骑手能就近接单大型电商如商品介绍页博客网站比如内容管理系统和注册表分析平台主要出于海量结构不完全相同的数据优点所有内容都在一个数据库当中而不是信息分散在多个链接数据库中因此与数据库相比可以获得更好的性能只要不使用关系型流程不像每个信息都有一个字段的传统数据库即使没有任何内容文档存储数据库也更加灵活实际上不需要文档有一致性您就可以存储大量数据基本上没有问题如果要保证多文档间的一致性不建议用文档数据库同样由于文档存储更灵活因此集成新数据根本不是问题与必须将任何新类型的信息添加到所有数据集的关系数据库相比文档存储数据库只需要添加到几个数据集即可指字段可以在不造成任何停机的情况下修改模式或者由于您将来可能不知道用户需求文档存储还有助于数据分析因为公司可以轻松存储众多信息供日后使用缺点不支持多文档事务业务中存在大量复杂的事务逻辑操作不要用但也开始支持了查询持续变化的聚合结构虽然文档数据库对模式不施加任何限制但是如果要即时查询这些持续可变的实体那么所用的查询命令也要不断变化所以就需要以最低级别的粒度来保存聚合这实际上就等于要统一数据格式文档型分布式高并发型类格式文档内数据结构是既可以是简单的数据类型如字符串数字和日期等也可以是复杂的类型如有序列表和关联对象最小单位是文档同一个集合中存储的文档属性可以是不同的每个文档都是自包含的数据单元是一系列数据项的集合场景网站数据非常适合实时的插入更新与查询并具备网站实时数据存储所需的复制及高度伸缩性缓存由于性能很高也适合作为信息基础设施的缓存层在系统重启之后由搭建的持久化缓存层可以避免下层的数据源过载满足海量存储需求和访问大尺寸低价值的数据使用传统的关系型数据库存储一些数据时可能会比较昂贵有开销浪费而且有存储引擎高性能高压缩在此之前很多时候程序员往往会选择传统的文件进行存储高伸缩性的场景如上面的网站数据非常适合由数十或数百台服务器组成的数据库的路线图中已经包含对引擎的内置支持用于对象及数据的存储的数据格式非常适合文档化格式的存储及查询不适合场景高度事务如银行传统的商业智能应用数据仓库一定要的复杂查询优缺点存储引擎默认高压缩高性能省磁盘能在大数据量下比多存很多数据模型特殊集合固定集合很像环形队列如果空间不足最早的文档就会被删除为新的文档腾出空间适用于任何想要自动淘汰过期属性的场景比如日志文件聊天记录通话信息记录等只需保留最近某段时间内的应用场景嵌入式文档引用式文档这东西的性能不太好涉及到了一点多文档事务转换数据类型只记特别的详细见内嵌文档文档二进制数据代码正则表达式分片分片是指将数据拆分将其分散存在不同机器上的过程有时也叫分区将数据分散在不同的机器上不需要功能强大的大型计算机就可以存储更多的数据处理更大的负载使用几乎所有数据库软件都能进行手动分片应用需要维护与若干不同数据库服务器的连接每个连接还是完全独立的应用程序管理不同服务器上的不同数据存储查村都需要在正确的服务器上进行这种方法可以很好的工作但是也难以维护比如向集群添加节点或从集群删除节点都很困难调整数据分布和负载模式也不轻松支持自动分片可以摆脱手动分片的管理集群自动切分数据做负载均衡中分片是拆大集合实例可以看到都是混合数据源各取所长很重要用电信息采集案例缓存策略安全加快写入高并发读写负载均衡人社大数据平台并行计算数据同步平台注意其中档案袋结构需求拓展很好用辅助智能助理主要用于查询等具体操作文档及评论点赞表评论表等都不用了一个集合搞定查询流程不用多表联查不需要同时执行大量文档型分布式高并发型数据模型不需要范式直接存储就可以默认会生成两个键数据库直接包含文档没有集合概念总结文档类数据库适合像聊天记录一样掐头去尾一些必要用户信息外中间有大量重复性结构的存储相比去掉了多表联查数据也放在一起开销更小开发也更方便也适合相似但不完全一样的海量数据存储他在大数据下查询比快得多但复杂事务就不要用了因为不支持事务只支持文档级别事务手动保证一致性性价比太低了列族数据库和行式比较大量降低有利于海量查询只读指定列可以少很多数据高压缩省硬盘应用上行式更有利于传统的业务即增删改查列式更有利于业务列式数据库在并行查询处理和压缩上更有优势而且数据是以列为单元存储完全不用考虑数据建模或者说建模更简单了要查询计算哪些列上的数据直接读取列就行非常适合于在数据仓库领域发挥作用比如数据分析海量存储和商业智能涉及不经常更新的数据改就要用去重组数据这个性能并不算好列族型分布式高并发型文件存储系统数据处理方式协同服务仅能通过主键和主键的来检索数据仅支持单行事务可通过支持来实现多表连接等复杂操作主要用来存储非结构化和半结构化的松散数据列可以灵活增加表特点大面向列稀疏可以为不占空间结构实现的是一个分布式文件系统生态系统中的各层系统位于结构化存储层为提供了高可靠性的底层存储支持为提供了高性能的计算能力为提供了稳定服务和失败恢复机制主要是极大的表大读写少或无修改要分析和传统关系数据库对比数据模型列名字的格式是如上图所示如果列族中有多个列会和上面一样存储头一格列族名列名第二格才是具体内容列族表在水平方向有一个或者多个列族组成一个列族中可以由任意多个列组成即列族支持动态扩展无需预先定义列的数量以及类型所有列均以二进制格式存储用户需要自行进行类型转换表由列族组成列族下可能由多个列定义时先列族名列名可有可无多列才需要列名行键表的主键表中的记录按照行键排序行键用来检索记录的主键根据查询时如果不指定会返回每个列的最新值实际上更新也是插入新值来完成的时间戳每次数据操作对应的时间戳可看作是数据的版本号不同版本通过时间戳来进行索引值实际上不会被存储物理视图见查询限制由于只能用和时间戳去查的设计是至关重要的设计不好会让功能做不出来容易造成数据热点等不同表通常需要不同的策略设计在中使用单调增加的值是不推荐的因为字典序这种设计优化了操作可以将相关的行以及会被一起读取的行存取在临近位置便于但正因为这样单调递增的会导致反转因为尾部随机性不错这样的话可以把数据分布在各个节点上这样是优化牺牲因为相关数据被分散了反转手段是多样的可以把尾部数据拿到前面来也可以使用减法等时间戳反转需要查询最近一段时间的场景还是很多的但时间戳前半段基本一样很容易造成数据热点反转则会好不少实际生产中可以用追加到的末尾比如这感觉像是出于原则才这么做减这一下可能还是会造成数据热点递增变递减而已关键处应该是前置加盐是将每一个加一个前缀前缀使用一些随机字符使得数据分散在多个不同的达到负载均衡的目标把数据分布在不同中增加写吞吐量牺牲读性能散列改进加盐使用确定性加盐前缀可以被算出来从而直接拿到来提高读性能同时也让负载分散到整个集群尽量减少行键和列族的大小当具体的值在系统间传输时它的列名时间戳也会一起传输如果和列名很大将会占用大量的存储空间冗长的属性名虽然可读性好但是更短的属性名存储在中会更好列族型分布式高并发型在混合模式可以将超级列添加到维和比较与双胞胎还是外表相似的陌生人回顾是一种用于数据存储和管理的自给自足技术而则不是后者旨在用作随机数据输入输出的工具这就是为什么将其所有数据存储在此处的原因此外使用作为服务器状态管理器并使用大师来知道所有元数据在哪里以避免在包含元数据的主服务器出现故障时立即出现群集故障因此复杂的相互依存系统更加难以配置保护和维护擅长写入而擅长密集读取的弱点是数据一致性而的痛苦是数据可用性尽管两者都试图减轻这些问题的不利后果数据模型逻辑上是数据模型含义和是不一样的考到看上面链接有超级列是一种编程模型用于大规模数据集大于的并行运算当前的软件实现是指定一个映射函数用来把一组键值对映射成一组新的键值对指定并发的归约函数用来保证所有映射的键值对中的每一个共享相同的键组二级索引键值对数据库键值数据库将数据存储为键值对集合其中键作为唯一标识符键和值都可以是从简单对象到复杂复合对象的任何内容键值数据库是高度可分区的并且允许以其他类型的数据库无法实现的规模进行水平扩展可水平拓展程度很高优缺点适用情景数据库只能通过键值查询意味着是不可查的没有事务不能关联两个或两个以上的键来关联数据某些数据库中故障不能回滚适用于频繁读写数据模型简单内容缓存型分布式高并发型内存式支持的数据类型包括有序集合和支持及取交集并集和差集及更丰富的操作而且操作都是原子性的支持各种不同方式的排序操作丰富且原子有主控支持主从同步数据模型为类型类型丰富支持只能通过对查询结构是简单的灵活的同时也把更多设计任务交给了用户怎么把数据存入由用户自己负责注的可以是字符串整数浮点数但都存储为所有容器包含的都是实际上是用散列表来存散列表保证不重复只有没有对应的存的是键值对存的也是键值对但有序集合的键被称为成员值则被称为分值分值必须为浮点数是里面唯一一个既可以根据成员访问元素这一点和散列一样又可以根据分值以及分值的排列顺序来访问元素的结构键值对同时支持有序访问需要存的是时请考虑或存一系列值时请考虑和只有一个值时使用分区总的来说还是得分区来达成分布式的好坏见数据恢复其实这个部分应该是很重要的作为内存式数据库这是他快的根源一旦断电没备份是灾难式的不知道为啥没讲下文分别介绍了混合持久化主要思路都是备份文件但中间会有各种取舍探索分析服务数据同步持久化机制通常情况下的数据全部存储在内存中数据库一旦故障发生重启数据会全部丢失持久化功能在于能够有效地避免因进程退出造成的数据丢失问题在下次重启时利用之前持久化的文件即可实现数据恢复文章投票实例它是不需要事务的存文章信息的格式为文章里存各种键值对信息这意味着文章间信息联系弱因为没有跨文章的事务文章间的联系通过另外两个来解决和在中以文章为和的值为同时需要已投票用户集合可以用文章为是一个由用户组成的也可以看中一样是内存式的需要节约内存可行的方案比如限定投票时间过期就淘汰掉相关的已投票用户表或者评选到期后可以把分数不够的分数和时间集合都不要了具体看内存情况命令表明还是支持在中上的相关运算的如果只是间有联系还是可以进行筛选部分值型分布式高并发型完全托管来自亚马逊数据模型是单纯的键值对存储虽然也是以形式存储数据的但是也引入了传统关系型数据库中的表的概念有了表就有主键的概念中的分区键和排序键以及二级索引可以应对很多不同场景下的需求所以更像是处于和之间的一种数据库由于其性能更多的被用于做缓存则更接近于的应用场景比如数据存储增删查改等不难理解的是在一款大型线上游戏的服务端应该是客户端服务端缓存这样的层级结构图数据库图数据库关系数据库的不足随着离散数据的增加数据集的宏观结构会越发复杂和不规整关系模型将造成大量表连接稀疏行和非空检查逻辑关系世界中连通性的增强将转换为连接操作的增加会阻碍性能使得数据库难以响应变化的业务需求面对一项联系可能需要不断用执行连接表递归查询代价比较高其他的不足文档和列存储数据库存储的都是无关联的值文档列很难用于关联数据对于上述数据库而言一种添加联系的策略是在某个聚合数据中嵌入另一个聚合数据标识符即添加外键这将导致代价剧增如引用文档这样做的代价是比较大的即使构建了联系那反向查询也会成为问题图数据库优势拥抱联系在查找各类拓展关系时速度优势巨大图型分布式高并发型中两个最基本的概念是节点和边节点表示实体边则表示实体之间的关系节点和边都可以有自己的属性提供了在对象图上进行查找和遍历的功能深度搜索广度搜索遍历可以限制深度完整的支持事务高可用高伸缩数据模型数据记录在节点和联系中节点和联系都拥有属性节点通过联系关联起来联系一定是有方向的可以单向可以双向节点经常被用于表示实体可以有多个属性最简单的节点也要有一个属性每个关系包含开始节点或从节点和到节点或结束节点因此通过关系可以找到很多关联的数据比如节点集合关系集合以及他们的属性集合属性是键值对键名是字符串属性值是要么是原始值要么是原始值类型的一个数组原始值就是常见的等等联系有类型节点有标签用于区分某一类路径遍历路径由至少一个节点通过各种关系连接组成经常是作为一个查询或者遍历的结果遍历的路径通常用关系的类型和方向来表示遍历的顺序常见的遍历顺序有深度优先和广度优先两种可以指定深度遍历的唯一性可以指定在整个遍历中是否允许经过重复的节点关系或路径遍历过程的决策器用来在遍历过程中判断是否继续进行遍历以及选择遍历过程的返回结果起始节点遍历过程的起点索引数据转换同张表的给相同的或这要看实体集还是联系集如果没有联系集的话可以根据平常使用情况进行构造其他就没啥了其他按照属性填入就可以了数据库的联系就更弱了首先考虑间的联系再具体考虑和和间的关系但好的设计不应该让这种情况出现这个转换本身就比较诡异和传统数据库相比下多了个数据库实例在传统数据库下是模式其实不太用得到每一级呈现包含关系最后考虑引用文档集合的联系案例社交网络汇总数据库汇总满足海量存储需求和访问文档型列簇列和转换用关系型和转换内存式高读写图重要的可以直接存文件有二进制数据这个类型图片等也可以但对每个值的大小是有实际限制的不是文件很难撑爆这个限制不能存文件也不能也不好一个内存式的不应该存案例汇总新浪从微博来看的话新浪用的好像不是完美的选择用或许不错使用应该是构建年代比较早而且有一定的事务需求使用是为了缓冲应对高并发场景视觉中国文章类很擅长优酷在线评论运营数据分析挺好的显然的选择京东这里说应该还是在大并发上比如说秒杀级别业务这类业务是典型的读多写少的应用场景下单和支付才是写请求所以这个时候缓存潇洒的出场写操作肯定还是有高度的事务属性最后下单和支付肯定是要用传统关系型的但前期浏览显然不用都是读这时候放在就很好了携程显然的数据分析需求用于缓冲旅游网站有点意义不明不过商业环境下一般都有总结如果感觉事务性比较强特别是多表事务不能接受先重做一个再做另一个中间的时间窗口的用传统感觉分析型用列族感觉联系很多的图数据库很好比如朋友圈本人朋友根据朋友逐一找出文章的列表找到文章排序即完成一项功能需要根据查询结果再查的可以用图但他不能存文件这个就比较尴尬了要存图片什么的就不要用这个了啥时候用多半是个做缓冲纯的几乎没有持久化手段不太好我更愿意这么理解在业务不确定且没啥对强一致性要求的可以用好处在于随便存可以存文件最后某种数据库嗯用也不是不行但效果可能不太好就是了也不一定比如大数据量存储列族和感觉都不错',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-01-09 20:46:50',
+  postMainColor: '',
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#18171d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f7f9fe')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+          const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+          const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+          if (t === undefined) {
+            if (isLightMode) activateLightMode()
+            else if (isDarkMode) activateDarkMode()
+            else if (isNotSpecified || hasNoSupport) {
+              const now = new Date()
+              const hour = now.getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addListener(e => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else if (t === 'light') activateLightMode()
+          else activateDarkMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.0.0"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div class="loading-bg"><img class="loading-img nolazyload" alt="加载头像" src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg"/><div class="loading-image-dot"></div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.getElementById('loading-box').classList.add("loaded");
+  },
+  initLoading: () => {
+    document.getElementById('loading-box').classList.remove("loaded")
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+setTimeout(function(){preloader.endLoading();},10000)
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><a id="site-name" href="/" accesskey="h"><div class="title">琴生</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 文章列表</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 社交</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友链</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> 关于我</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 随笔</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="随机前往一个文章" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> 搜索</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="中控台" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://bu.dusays.com/2023/12/26/658ad46c8f066.jpg" target="_blank"><img class="post-qr-code-img" alt="微信" src="https://bu.dusays.com/2023/12/26/658ad46c8f066.jpg"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://bu.dusays.com/2023/12/26/658ad48826c79.jpg" target="_blank"><img class="post-qr-code-img" alt="支付宝" src="https://bu.dusays.com/2023/12/26/658ad48826c79.jpg"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments"><div class="card-content"><div class="author-content-item-tips">互动</div><span class="author-content-item-title"> 最新评论</span></div><div class="aside-list"><span>正在加载中...</span></div></div></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">兴趣点</div><span class="author-content-item-title">寻找你感兴趣的领域</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/Hexo/" style="font-size: 1.05rem;">Hexo<sup>3</sup></a><a href="/tags/Nosql/" style="font-size: 1.05rem;">Nosql<sup>1</sup></a><a href="/tags/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/" style="font-size: 1.05rem;">数据科学<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 1.05rem;">计网<sup>8</sup></a><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" style="font-size: 1.05rem;">软件工程<sup>3</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>文章</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>归档</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/01/"><span class="card-archive-list-date">一月 2024</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/12/"><span class="card-archive-list-date">十二月 2023</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/11/"><span class="card-archive-list-date">十一月 2023</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">5</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/05/"><span class="card-archive-list-date">五月 2023</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="显示模式切换" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="边栏显示控制"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div><div class="console-btn-item" id="consoleMusic" onclick="anzhiyu.musicToggle()" title="音乐开关"><a class="music-switch"><i class="anzhiyufont anzhiyu-icon-music"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="切换"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%A4%A7%E5%AD%A6/" itemprop="url">大学</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/Nosql/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>Nosql</span></a></span></div></div><h1 class="post-title" itemprop="name headline">Nosql复习</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2024-01-09T05:25:42.000Z" title="发表于 2024-01-09 13:25:42">2024-01-09</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2024-01-09T12:46:50.406Z" title="更新于 2024-01-09 20:46:50">2024-01-09</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-pv-cv" id="" data-flag-title="Nosql复习"><i class="anzhiyufont anzhiyu-icon-fw-eye post-meta-icon"></i><span class="post-meta-label" title="阅读量">阅读量:</span><span id="busuanzi_value_page_pv"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为济南"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>济南</span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="https://bu.dusays.com/2023/12/29/658ebf7e39c30.jpg"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://srj2003.top/2024/01/09/Nosql%E5%A4%8D%E4%B9%A0/"><header><a class="post-meta-categories" href="/categories/%E5%A4%A7%E5%AD%A6/" itemprop="url">大学</a><a href="/tags/Nosql/" tabindex="-1" itemprop="url">Nosql</a><h1 id="CrawlerTitle" itemprop="name headline">Nosql复习</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">琴生</span><time itemprop="dateCreated datePublished" datetime="2024-01-09T05:25:42.000Z" title="发表于 2024-01-09 13:25:42">2024-01-09</time><time itemprop="dateCreated datePublished" datetime="2024-01-09T12:46:50.406Z" title="更新于 2024-01-09 20:46:50">2024-01-09</time></header><h1 id="1-各种aaS"><a href="#1-各种aaS" class="headerlink" title="1.各种aaS"></a>1.各种aaS</h1><h1 id="2-传统ACID"><a href="#2-传统ACID" class="headerlink" title="2.传统ACID"></a>2.传统ACID</h1><p>原子性：undolog ——在SQL执行前先于数据持久化到磁盘</p>
+<p>持久性：都要过磁盘IO（巨大开销）——引入BufferPool机制</p>
+<p>隔离性：隔离级别越高开销越大，同时并发程度下降</p>
+<p>一致性：一致性是事务追求的最终目标，前面提到的原子性、持久性和隔离性，都是为了保证数据库状态的一致性</p>
+<p><strong>支持事务就意味着ACID</strong></p>
+<h1 id="3-why-NoSQL"><a href="#3-why-NoSQL" class="headerlink" title="3.why NoSQL"></a>3.why NoSQL</h1><h2 id="关系型数据库瓶颈"><a href="#关系型数据库瓶颈" class="headerlink" title="关系型数据库瓶颈"></a>关系型数据库瓶颈</h2><p>在上面可以看到，传统数据库为了保证其ACID特性开销是相当大的，几乎所有操作都要到磁盘I&#x2F;O当中，因此在高并发条件下，磁盘I&#x2F;O就很容易导致性能瓶颈。【最终表现是在高并发条件下读写慢，即使有各类缓冲池存在，（设计初衷不同，对内存的优化不够好）】</p>
+<p> 此外，在基于web的结构当中，数据库是最难进行横向扩展的，当一个应用系统的用户量和访问量与日俱增的时候，数据库却没有办法像web server和app server那样简单的通过添加更多的硬件和服务节点来扩展性能和负载能力。对于很多需要提供24小时不间断服务的网站来说，对数据库系统进行升级和扩展是非常痛苦的事情，往往需要停机维护和数据迁移。</p>
+<p><strong>对网站来说，关系型数据库的很多特性不再需要了：</strong></p>
+<p> 事务一致性——允许放弃一部分一致性来换取高可用。关系型数据库在对事物一致性的维护中有很大的开销，而现在很多web2.0系统对事物的读写一致性都不高</p>
+<p> 读写实时性—— 对关系数据库来说，插入一条数据之后立刻查询，是肯定可以读出这条数据的，但是对于很多web应用来说，并不要求这么高的实时性，比如发一条消息之后，过几秒乃至十几秒之后才看到这条动态是完全可以接受的</p>
+<p> 对海量数据的高效率存储和访问的需求—— 类似Facebook，twitter，Friendfeed这样的SNS网站，每天用户产生海量的用户动态，以Friendfeed为例，一个月就达到 了2.5亿条用户动态，对于关系数据库来说，在一张2.5亿条记录的表里面进行SQL查询，效率是极其低下乃至不可忍受的。再例如大型web网站的用户登 录系统，例如腾讯，盛大，动辄数以亿计的帐号，关系数据库也很难应付。或者说，多表联查或大表查询带来的开销不可接受（结构化数据）</p>
+<p> 在关系型数据库中，导致性能欠佳的最主要原因是多表的关联查询，以及复杂的数据分析类型的复杂SQL报表查询。关系型数据库中的表都是存储一个格式化的数据结构，每个元组字段的组成都是一样，即使不是每个元组都需要所有的字段，但数据库会为每个元组分配所有的字段。这样的结构可以便于标语表之间进行链接等操作，但从另一个角度来说它也是关系型数据库性能瓶颈的一个因素。</p>
+<p> Eg.不会局限于固定的结构，可以减少一些时间和空间的开销——KV键值对数据库【不用多表联查】</p>
+<p> 【固定结构带来的是可以复杂查询，但开销上升，拓展性变差】</p>
+<p><strong>总结：</strong></p>
+<p>1.对数据库高并发读写的需求——大量磁盘I&#x2F;O__也可以引出分布式，有新的硬件如CPU等，变相跳开了瓶颈</p>
+<p>2.对海量数据的高效率存储和访问的需求——大表，多表查询，结构化数据——OLAP分析型业务，大数据下的查询</p>
+<p>3.对数据库的高可扩展性和高可用性的需求——分布式</p>
+<p>4.半结构化&#x2F;非结构化数据存储——大数据下模式和数据的关系，模式难以先确定，甚至要反推模式来处理其他领域问题</p>
+<h2 id="NoSQL缺点"><a href="#NoSQL缺点" class="headerlink" title="NoSQL缺点"></a>NoSQL缺点</h2><p> 非关系型数据库由于很少的约束，他也不能够提供像SQL所提供的where这种对于字段属性值情况的查询。并且难以体现设计的完整性。他只适合存储一些较为简单的数据，对于需要进行较复杂查询的数据，SQL数据库显的更为合适。</p>
+<p> 非关系型数据库的实质：非关系型数据库产品是传统关系型数据库的功能阉割版本，通过减少用不到或很少用的功能，来大幅度提高产品性能。具体应用需要权衡。</p>
+<h2 id="why-NOSQL种类多"><a href="#why-NOSQL种类多" class="headerlink" title="why NOSQL种类多"></a>why NOSQL种类多</h2><p>大数据环境下不可能存在一种数据库可以满足所有需求，NoSQL是一类数据库的统称</p>
+<h2 id="关系型数据库与非关系型数据库的区别"><a href="#关系型数据库与非关系型数据库的区别" class="headerlink" title="关系型数据库与非关系型数据库的区别"></a>关系型数据库与非关系型数据库的区别</h2><p>关系型数据库的最大特点就是事务的一致性：传统的关系型数据库读写操作都是事务的，具有ACID的特点，这个特性使得关系型数据库可以用于几乎所有对一致性有要求的系统中，如典型的银行系统。</p>
+<p>但是，在网页应用中，尤其是SNS应用中，一致性却不是显得那么重要，用户A看到的内容和用户B看到同一用户C内容更新不一致是可以容忍的，或者说，两个人看到同一好友的数据更新的时间差那么几秒是可以容忍的，因此，关系型数据库的最大特点在这里已经无用武之地，起码不是那么重要了。</p>
+<p>相反地，关系型数据库为了维护一致性所付出的巨大代价就是其读写性能比较差，而像微博、facebook这类SNS的应用，对并发读写能力要求极高，关系型数据库已经无法应付【在读方面，传统上为了克服关系型数据库缺陷，提高性能，都是增加一级memcache来静态化网页，而在SNS中，变化太快，memcache已经无能为力了】，因此，必须用新的一种数据结构存储来代替关系数据库。</p>
+<p>关系数据库的另一个特点就是其具有固定的表结构，因此，其扩展性极差，而在SNS中，系统的升级，功能的增加，往往意味着数据结构巨大变动，这一点关系型数据库也难以应付，需要新的结构化数据存储。</p>
+<p>于是，非关系型数据库应运而生，由于不可能用一种数据结构化存储应付所有的新的需求，因此，非关系型数据库严格上不是一种数据库，应该是一种数据结构化存储方法的集合。 <strong>必须强调的是，数据的持久存储，尤其是海量数据的持久存储，还是需要一种关系数据库。</strong></p>
+<p>SQL为什么并发读写慢？反之其他两个为什么快？<br>1.ACID的开销	2.传统的全部要过硬盘	3.结构性数据	4.单点？分布式？</p>
+<h2 id="关系型数据库分布式（如MySQL）"><a href="#关系型数据库分布式（如MySQL）" class="headerlink" title="关系型数据库分布式（如MySQL）"></a>关系型数据库分布式（如MySQL）</h2><ol>
+<li><p>由于关系数据库支持事务，切分可能引入分布式事务，但分布式事务对系统资源消耗大，性能也并不高</p>
+</li>
+<li><p>跨节点的join和排序操作：尽管能在数据库端解决(Oracle DBlink, MySQL Federated)，但可能耗费大量的网络资源。通常推荐在应用层进行数据的整合，这需要应用层做很多额外的工作，也加重了应用服务器的负担</p>
+</li>
+</ol>
+<h1 id="4-一致性理论模型"><a href="#4-一致性理论模型" class="headerlink" title="4.一致性理论模型"></a>4.一致性理论模型</h1><h2 id="CAP理论"><a href="#CAP理论" class="headerlink" title="CAP理论"></a>CAP理论</h2><p><strong>CAP理论</strong></p>
+<p>一个分布式系统不可能满足一致性，可用性和分区容错性这三个需求，最多只能同时满足两个</p>
+<p>可用性： 一直可以正常的做读写操作。简单而言就是客户端一直可以正常访问并得到系统的正常响应。用户角度来看就是不会出现系统操作失败或者访问超时等问题</p>
+<p>一致性：在分布式系统完成某写操作后任何读操作，都应该获取到该写操作写入的那个最新的值。相当于要求分布式系统中的各节点时时刻刻保持数据的一致性</p>
+<p>分区容错性：指的分布式系统中的某个节点或者网络出现了故障的时候，其他节点仍然能对外提供满足一致性和可用性的服务，也就是说部分故障不影响整体使用</p>
+<p>事实上在设计分布式系统时都会考虑到bug、硬件、网络等各种原因造成的故障，所以即使部分节点或者网络出现故障，也要求整个系统还是要继续使用的</p>
+<p>【分区可用性不可以舍弃，则只能在可用性和一致性中做取舍】</p>
+<p><strong>CAP取舍</strong></p>
+<p>CA: 优先保证一致性和可用性，放弃分区容错。 这也意味着放弃系统的扩展性，系统不再是分布式的，有违设计的初衷。【非分布式系统】【关系型数据库】</p>
+<p>CP: 优先保证一致性和分区容错性，放弃可用性。在数据一致性要求比较高的场合(如:Zookeeper，Hbase) 是比较常见的做法，一旦发生网络故障或者消息丢失，就会牺牲用户体验，等恢复之后用户才逐渐能访问。【分布式数据库】</p>
+<p>AP: 优先保证可用性和分区容错性，放弃一致性。放弃一致性不是说一致性就不保证了，而是逐渐的变得一致【保证最终一致性】【BASE模型】</p>
+<p>分析时会发现不少数据库宣称同时高可用和强一致，这时要看错误恢复，如HBase，他某个region错误后，会暂停服务并作redo，放弃了可用，则为CP，但这时别的region依然在服务，所以是降低了可用性，不是完全不可用。</p>
+<h2 id="一致性强弱"><a href="#一致性强弱" class="headerlink" title="一致性强弱"></a>一致性强弱</h2><p>强一致性（即时一致性）：假如A先写入了一个值到存储系统，存储系统保证后续A，B，C的读取操作都将返回最新值；单副本数据容易保证强一致性，多副本数据需要使用分布式事务协议。</p>
+<p>弱一致性：假如A先写入了一个值到存储系统，存储系统不能保证后续A，B，C的读取操作能读取到最新值</p>
+<p>不一致性窗口：从A写入到后续操作A，B，C读取到最新值这一段时间</p>
+<p>窗口的大小依赖于以下的几个因素：交互延迟，系统的负载，以及复制技术中replica的个数（这个可以理解为master&#x2F;salve模式中，salve的个数）</p>
+<p>最终一致性是弱一致性的一种特例</p>
+<p>raft协议保证写强一致，读顺序一致</p>
+<h2 id="BASE模型"><a href="#BASE模型" class="headerlink" title="BASE模型"></a>BASE模型</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659ce7bf32c98.png"></p>
+<p>BA—基本可用：指分布式系统在出现不可预知故障的时候，允许损失部分可用性——但请注意，这绝不等价于系统不可用（可能出现如响应时间，功能上的损失）</p>
+<p>S—软状态&#x2F;柔性事务：指允许系统中的数据存在中间状态，并认为该中间状态的存在不会影响系统的整体可用性，即允许系统在不同节点的数据副本之间进行数据同步的过程存在延时（即存在不一致性窗口）</p>
+<p>E—最终一致性：强调的是系统中所有的数据副本，在经过一段时间的同步后，最终能够达到一个一致的状态。因此，最终一致性的本质是需要系统保证最终数据能够达到一致，而不需要实时保证系统数据的强一致性</p>
+<p>在没有发生故障的前提下，数据达到一致状态的时间延迟，取决于网络延迟，系统负载和数据复制方案设计等因素（即不一致性窗口大小，当然也和分布式事务协议有关）</p>
+<h2 id="NWR模型——一致性"><a href="#NWR模型——一致性" class="headerlink" title="NWR模型——一致性"></a>NWR模型——一致性</h2><p>N: 复制的节点数量，即副本数</p>
+<p>R: 成功读操作的最小节点数</p>
+<p>W: 成功写操作的最小节点数</p>
+<p>只需W + R &gt; N，就可以保证强一致性，因为读取数据的节点和被同步写入的节点是有重叠的</p>
+<p>Eg. TIDB中使用Raft协议，两阶段提交保证写强一致，而不是全部强一致，他读是顺序一致</p>
+<p>根据CAP理论，一致性、可用性和分区容错 性最多只能满足两个，因此需要在一致性和可用性之间做一平衡。<br>如果要高的一致性，那么就配置N&#x3D;W，R&#x3D;1,这个时候可用性特别是写操作的性能就会大大降低。<br>如果想要高的可用性，那么此时就需要放松一致性的要求，此时可以配置W&#x3D;1，这样使得写操作延迟最低，同时通过异步的机制更新剩余的N-W个节点。<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659ce81184d96.png"></p>
+<h2 id="两阶段提交协议——分布式事务"><a href="#两阶段提交协议——分布式事务" class="headerlink" title="两阶段提交协议——分布式事务"></a>两阶段提交协议——分布式事务</h2><p>以保证分布式事务中，要么所有参与的进程都提交事务成功，要么都取消事务，这样做可以在分布式环境中保持ACID中A(原子性)在两阶段提交协议中，包含了两种角色：参与者就是实际处理事务的机器，协调者就是其中一台单独的处理分布式事务的机器。</p>
+<p>两个阶段：</p>
+<p><strong>投票阶段</strong>：在请求阶段，协调者将通知事务参与者准备提交或取消事务，然后进入表决过程<br>在表决过程中，参与者将告知协调者自己的决策：同意（事务参与者本地作业执行成功）或取消（本地作业执行故障）。</p>
+<p> <strong>提交阶段</strong>：协调者将基于第一个阶段的投票结果进行决策：提交或取消。当且仅当所有的参与者同意提交事务协调者才通知所有的参与者提交事务，否则协调者将通知所有的参与者取消事务</p>
+<p>优点：实现简单</p>
+<p>缺点：</p>
+<p><strong>同步阻塞问题：</strong>执行过程中，所有参与节点都是事务阻塞型的。当参与者占有公共资源时，其他第三方节点访问公共资源不得不处于阻塞状态。</p>
+<p><strong>单点故障：</strong>由于协调者的重要性，一旦协调者发生故障。参与者会一直阻塞下去。尤其在第二阶段，协调者发生故障，那么所有的参与者还都处于锁定事务资源的状态中，而无法继续完成事务操作。（如果是协调者挂掉，可以重新选举一个协调者，但是无法解决因为协调者宕机导致的参与者处于阻塞状态的问题）【可以重选举，但依然有阻塞开销】</p>
+<p><strong>数据不一致：</strong>commit请求提交时，部分节点挂掉会导致数据不一致。【日志可以解决】</p>
+<p><strong>二阶段无法解决的问题：</strong>协调者commit发出后宕机，接收者也宕机，则事务出现不确定。</p>
+<h1 id="5-数据复制"><a href="#5-数据复制" class="headerlink" title="5.数据复制"></a>5.数据复制</h1><p>复制是将数据同步在多个服务器的过程。复制至少需要两个节点，一个是主节点，负责处理客户端请求，其余的都是从节点，负责复制主节点上的数据</p>
+<p>常见有一主一从，一主多从</p>
+<p>主节点记录在其上的所有操作oplog，从节点定期轮询主节点获取这些操作，然后对自己的数据副本执行这些操作，从而保证从节点的数据与主节点一致</p>
+<p>优点：<br>安全性，高可用，灾难恢复，无需停机维护，分布式读取数据</p>
+<h1 id="6-文档数据库（MongoDB）"><a href="#6-文档数据库（MongoDB）" class="headerlink" title="6.文档数据库（MongoDB）"></a>6.文档数据库（MongoDB）</h1><h2 id="文档是数据库中的主要概念"><a href="#文档是数据库中的主要概念" class="headerlink" title="文档是数据库中的主要概念"></a>文档是数据库中的主要概念</h2><p>可存放并获取文档，其格式可以是XML、JSON、BSON等</p>
+<p>数据库中的文档彼此相似，但结构不必完全相同，不像关系型数据库那样，表格中每行数据的模式都要相同【模式相似但可以不同】</p>
+<p>向文档中新增属性时，既无需预先定义，也不用修改已有文档内容</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d0ab6571b8.png"></p>
+<h2 id="文档数据库特性"><a href="#文档数据库特性" class="headerlink" title="文档数据库特性"></a>文档数据库特性</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d0aeeaba14.png"></p>
+<h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><ol>
+<li>应用在应用服务器的日志记录。</li>
+<li>主要用来存储一些监控数据，No schema 对开发人员来说，真的很方便，增加字段不用改表结构，而且学习成本极低。</li>
+<li>使用MongoDB做了O2O快递应用，将送快递骑手、快递商家的信息（包含位置信息）存储在 MongoDB，然后通过 MongoDB 的地理位置查询，这样很方便的实现了查找附近的商家、骑手等功能，使得快递骑手能就近接单。</li>
+</ol>
+<p>ALL：大型电商（如商品介绍页），博客网站(比如Twitter)，内容管理系统(WordPress和Windows注册表)，分析平台【主要出于海量，结构不完全相同的数据】</p>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><p>1.所有内容都在一个数据库当中，而不是信息分散在多个链接数据库中。因此，与SQL数据库相比可以获得更好的性能，只要不使用关系型流程。</p>
+<p>2.不像每个信息都有一个字段的传统数据库，即使没有任何内容，文档存储数据库也更加灵活。实际上，不需要文档有一致性，您就可以存储大量数据，基本上没有问题。如果要保证多文档间的一致性，不建议用文档数据库。</p>
+<p>3.同样，由于文档存储更灵活，因此集成新数据根本不是问题。与必须将任何新类型的信息添加到所有数据集的关系数据库相比，文档存储数据库只需要添加到几个数据集即可。【指字段】</p>
+<p>4.可以在不造成任何停机的情况下修改模式，或者由于您将来可能不知道用户需求</p>
+<p>5.文档存储还有助于数据分析，因为公司可以轻松存储众多信息供日后使用。</p>
+<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><p>不支持多文档事务，业务中存在大量复杂的事务逻辑操作不要用【但MongoDB也开始支持了】</p>
+<p>查询持续变化的聚合结构，虽然文档数据库对模式不施加任何限制，但是如果要即时查询这些持续可变的实体，那么所用的查询命令也要不断变化，所以就需要以最低级别的粒度来保存聚合，这实际上就等于要统一数据格式。</p>
+<h2 id="MongoDB"><a href="#MongoDB" class="headerlink" title="MongoDB"></a>MongoDB</h2><p>文档型，分布式【高并发】，CP型</p>
+<p>类JSON格式，文档内数据结构是kv，value既可以是简单的数据类型，如字符串、数字和日期等。也可以是复杂的类型，如有序列表和关联对象</p>
+<p>最小单位是文档，同一个集合中存储的文档属性可以是不同的，每个文档都是自包含的数据单元，是一系列数据项的集合</p>
+<p><strong>场景</strong><br>网站数据：Mongo 非常适合实时的插入，更新与查询，并具备网站实时数据存储所需的复制及高度伸缩性<br>缓存：由于性能很高，Mongo 也适合作为信息基础设施的缓存层，在系统重启之后，由Mongo 搭建的持久化缓存层可以避免下层的数据源过载<br>满足海量存储需求和访问||大尺寸、低价值的数据：使用传统的关系型数据库存储一些数据时可能会比较昂贵【有开销浪费，而且Mongo有WiredTiger 存储引擎，高性能，高压缩】，在此之前，很多时候程序员往往会选择传统的文件进行存储<br>高伸缩性的场景【如上面的网站数据】：Mongo 非常适合由数十或数百台服务器组成的数据库，Mongo 的路线图中已经包含对MapReduce 引擎的内置支持<br>用于对象及JSON 数据的存储：Mongo 的BSON 数据格式非常适合文档化格式的存储及查询</p>
+<p><strong>不适合场景</strong><br>高度事务（如银行），传统的商业智能应用（数据仓库），一定要SQL的复杂查询</p>
+<p><strong>优缺点</strong>：PPT3 21 22 23 MongoDB存储引擎wiredtiger默认高压缩、高性能。省磁盘，能在大数据量下比MySQL多存很多。</p>
+<p><strong>数据模型</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d0d4e5c411.png"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d0d4e1fa00.png"></p>
+<p><strong>特殊集合——固定集合</strong><br>很像环形队列，如果空间不足，最早的文档就会被删除，为新的文档腾出空间，适用于任何想要自动淘汰过期属性的场景，比如日志文件，聊天记录，通话信息记录等只需保留最近某段时间内的应用场景</p>
+<p><strong>嵌入式文档</strong> PPT116 </p>
+<p><strong>引用式文档</strong>PPT117 这东西的性能不太好，涉及到了一点多文档事务</p>
+<p><strong>RDB转换MongoDB</strong><br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d0e8f5bb89.png"></p>
+<p><strong>数据类型</strong><br>只记特别的，详细见PPT3 29</p>
+<p>Object—内嵌文档 Object ID—文档ID</p>
+<p>Binary Data—二进制数据</p>
+<p>Code—js代码</p>
+<p>Regular Expression—正则表达式</p>
+<p><strong>分片</strong></p>
+<p>分片是指将数据拆分,将其分散存在不同机器上的过程.有时也叫分区.将数据分散在不同的机器上,不需要功能强大的大型计算机就可以存储更多的数据,处理更大的负载.<br>使用几乎所有数据库软件都能进行手动分片,应用需要维护与若干不同数据库服务器的连接,每个连接还是完全独立的.应用程序管理不同服务器上的不同数据,存储查村都需要在正确的服务器上进行.这种方法可以很好的工作,但是也 难以维护,比如向集群添加节点或从集群删除节点都很困难,调整数据分布和负载模式也不轻松.</p>
+<p> MongoDB支持自动分片,可以摆脱手动分片的管理.集群自动切分数据,做负载均衡.</p>
+<p> MongoDB中分片是拆大集合。</p>
+<p><strong>实例</strong><br>可以看到都是混合数据源，各取所长很重要。</p>
+<p>用电信息采集案例PPT3 179 缓存策略【安全，加快Mongo写入】，Mongo高并发读写，负载均衡</p>
+<p>人社大数据平台PPT3 188 Oracle+HBase+Mongo【+并行计算+数据同步平台】</p>
+<p> 注意其中档案袋结构，需求拓展，很好用Mongo，辅助智能助理，主要用于查询等具体操作。</p>
+<p>文档及评论PPT3 194 点赞表，评论表等都不用了——&gt;一个集合搞定</p>
+<p> 查询流程PPT3 196 不用多表联查，不需要同时执行大量SQL</p>
+<h2 id="CouchDB"><a href="#CouchDB" class="headerlink" title="CouchDB"></a>CouchDB</h2><p>文档型，分布式【高并发】，AP型</p>
+<p><strong>数据模型</strong></p>
+<p>不需要范式，直接存储JSON就可以，CouchDB默认会生成 id，rev 两个键</p>
+<p>数据库直接包含文档，没有集合概念</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>文档类数据库适合像聊天记录一样，掐头去尾一些必要用户信息外，中间有大量重复性结构的存储，相比SQL去掉了多表联查，数据也放在一起，开销更小，开发也更方便。</p>
+<p> 也适合相似但不完全一样的海量数据存储，他在大数据下查询比SQL快得多</p>
+<p> 但复杂事务就不要用了 ，因为不支持事务（只支持文档级别事务），手动保证一致性性价比太低了。</p>
+<h1 id="7-列族数据库（Hbase）"><a href="#7-列族数据库（Hbase）" class="headerlink" title="7.列族数据库（Hbase）"></a>7.列族数据库（Hbase）</h1><h2 id="和行式比较"><a href="#和行式比较" class="headerlink" title="和行式比较"></a>和行式比较</h2><p>大量降低I&#x2F;O:【有利于海量查询】只读指定列，可以少很多数据</p>
+<p>高压缩—省硬盘</p>
+<p><strong>应用上</strong></p>
+<p>行式：更有利于传统的OLTP业务，即增删改查</p>
+<p>列式：更有利于OLAP业务，列式数据库在并行查询处理和压缩上更有优势。而且数据是以列为单元存储，完全不用考虑数据建模或者说建模更简单了。要查询计算哪些列上的数据，直接读取列就行。非常适合于在数据仓库领域发挥作用，比如数据分析、海量存储和商业智能;涉及不经常更新的数据【改就要用Rowkey去重组数据，这个性能并不算好】。</p>
+<h2 id="HBase"><a href="#HBase" class="headerlink" title="HBase"></a>HBase</h2><p>列族型，分布式【高并发】，CP型</p>
+<p>文件存储系统HDFS，数据处理方式MapReduce， 协同服务Zookeeper</p>
+<p>HBase仅能通过主键(row key)和主键的range来检索数据，仅支持单行事务(可通过Hive支持来实现多表连接等复杂操作)</p>
+<p>主要用来存储非结构化和半结构化的松散数据【列可以灵活增加】</p>
+<p>Hbase表特点：大，面向列，稀疏【可以为null不占空间】</p>
+<p><strong>Hbase结构</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d39c4c516a.png"></p>
+<p>Hadoop实现的是一个分布式文件系统</p>
+<p>Hadoop生态系统中的各层系统<br>HBase位于结构化存储层<br>HDFS为HBase提供了高可靠性的底层存储支持<br>MapReduce为HBase提供了高性能的计算能力<br>Zookeeper为HBase提供了稳定服务和失败恢复机制</p>
+<p>主要是极大的表，大读写，少或无修改，要分析</p>
+<p><strong>Hbase和传统关系数据库对比</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d39fb41c2e.png"></p>
+<p><strong>数据模型</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d39c22d840.png"></p>
+<p>列名字的格式是“ &lt; family &gt;:&lt; label &gt;”：如上图anchor所示，如果列族中有多个列，会和上面一样存储，头一格&lt; 列族名 &gt;：&lt; 列名 &gt;，第二格才是具体内容</p>
+<p><strong>列族</strong>（Column Family）：表在水平方向有一个或者多个列族组成，一个列族中可以由任意多个列组成，即列族支持动态扩展，无需预先定义列的数量以及类型，所有列均以二进制格式存储，用户需要自行进行类型转换</p>
+<p>【表由列族组成，列族下可能由多个列，定义时先列族名，列名可有可无，多列才需要列名】</p>
+<p><strong>行键</strong>（Row Key）：HBase表的主键，表中的记录按照行键排序。行键用来检索记录的主键</p>
+<p>【根据RowKey查询时，如果不指定timeStamp，会返回每个列的最新值，实际上更新也是插入新值来完成的】</p>
+<p><strong>时间戳</strong>（Timestamp）：每次数据操作对应的时间戳，可看作是数据的版本号，不同版本通过时间戳来进行索引</p>
+<p>NULL值实际上不会被存储，物理视图见PPT4 25</p>
+<p>查询限制：PPT4 56 57<br>由于只能用RowKey和时间戳去查，rowkey的设计是至关重要的，设计不好会让功能做不出来，容易造成数据热点等</p>
+<p>不同表通常需要不同的rowkey策略</p>
+<p><strong>RowKey设计</strong></p>
+<ul>
+<li><p>在Hbase中，使用单调增加的rowkey值是不推荐的</p>
+<p>因为rowkey字典序，这种设计优化了scan操作，可以将相关的行以及会被一起读取的行存取在临近位置，便于scan</p>
+<p>但正因为这样，单调递增的rowkey会导致</p>
+</li>
+<li><p>Reverse反转：因为RowKey尾部随机性不错，这样的话可以把数据分布在各个节点上。这样是优化Get，牺牲Scan，因为相关数据被分散了；反转手段是多样的，可以把尾部数据拿到前面来，也可以使用减法等</p>
+<p>时间戳反转：需要查询最近一段时间的场景还是很多的，但时间戳前半段基本一样，很容易造成数据热点，反转则会好不少</p>
+<p>实际生产中可以用 Long.Max_Value - timestamp 追加到 key 的末尾，比如 [key] [reverse_timestamp]</p>
+<p>【PS.这感觉像是出于原则才这么做，减这一下可能还是会造成数据热点，递增变递减而已，关键处应该是前置key】</p>
+</li>
+<li><p>Salt加盐：Salt是将每一个Rowkey加一个前缀，前缀使用一些随机字符，使得数据分散在多个不同的Region，达到Region负载均衡的目标，把数据分布在不同region中，增加写吞吐量，牺牲读性能</p>
+</li>
+<li><p>散列：改进加盐。使用确定性Hash加盐，前缀可以被算出来，从而直接拿到Rowkey来get，提高读性能，同时也让负载分散到整个集群。</p>
+</li>
+<li><p>尽量减少行键和列族的大小：当具体的值在系统间传输时，它的rowkey，列名，时间戳也会一起传输，如果rowkey和列名很大，将会占用大量的存储空间；冗长的属性名虽然可读性好，但是更短的属性名存储在HBase中会更好</p>
+</li>
+</ul>
+<h2 id="Cassandra"><a href="#Cassandra" class="headerlink" title="Cassandra"></a>Cassandra</h2><p>列族型，分布式【高并发】，AP型</p>
+<p>在混合模式可以将超级列添加到5维</p>
+<p><strong>和Hbase比较</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3b28bef60.png"></p>
+<p>[Cassandra与HBase：双胞胎还是外表相似的陌生人？](<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/341426602#:~:text=Cassandra">https://zhuanlan.zhihu.com/p/341426602#:~:text=Cassandra</a> vs. HBase –回顾. Cassandra是一种用于数据存储和管理的“自给自足”技术，而HBase则不是。.,后者旨在用作HDFS随机数据输入%2F输出的工具，这就是为什么将其所有数据存储在此处的原因。. 此外，HBase使用Zookeeper作为服务器状态管理器，并使用“大师”来知道所有元数据在哪里（以避免在包含元数据的主服务器出现故障时立即出现群集故障）。. 因此，HBase复杂的相互依存系统更加难以配置，保护和维护。. Cassandra擅长写入，而HBase擅长密集读取。. Cassandra的弱点是数据一致性，而HBase的痛苦是数据可用性，尽管两者都试图减轻这些问题的不利后果。.)</p>
+<p><strong>数据模型</strong><br>逻辑上是KeySpace-ColumnFamily-Key-Columns【数据模型含义和HBase是不一样的，考到看上面链接】</p>
+<p>有超级列</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3b8fd9c44.png"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3bfa72b0d.png"></p>
+<h2 id="MapReduce"><a href="#MapReduce" class="headerlink" title="MapReduce"></a>MapReduce</h2><p>MapReduce是一种编程模型，用于大规模数据集（大于1TB）的并行运算。</p>
+<p>当前的软件实现是指定一个Map（映射）函数，用来把一组键值对映射成一组新的键值对，指定并发的Reduce（归约）函数，用来保证所有映射的键值对中的每一个共享相同的键组。</p>
+<h2 id="HBase二级索引"><a href="#HBase二级索引" class="headerlink" title="HBase二级索引"></a>HBase二级索引</h2><h1 id="8-键值对数据库（Redis）"><a href="#8-键值对数据库（Redis）" class="headerlink" title="8.键值对数据库（Redis）"></a>8.键值对数据库（Redis）</h1><p>键值数据库将数据存储为键值对集合，其中键作为唯一标识符</p>
+<p>键和值都可以是从简单对象到复杂复合对象的任何内容</p>
+<p>键值数据库是高度可分区的，并且允许以其他类型的数据库无法实现的规模进行水平扩展【可水平拓展程度很高】</p>
+<h2 id="优缺点，适用情景"><a href="#优缺点，适用情景" class="headerlink" title="优缺点，适用情景"></a><strong>优缺点，适用情景</strong></h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3bfa72b0d.png"></p>
+<p>KV数据库只能通过键值查询，意味着value是不可查的</p>
+<p>没有事务，不能关联两个或两个以上的键来关联数据</p>
+<p>某些KV数据库中，故障不能回滚</p>
+<p>适用于：频繁读写，数据模型简单，内容缓存</p>
+<h2 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h2><p>KV型，分布式【高并发】，CP型，内存式</p>
+<p>支持的数据类型包括string、list、set、zset(有序集合)和hash</p>
+<p>支持push&#x2F;pop、add&#x2F;remove及取交集并集和差集及更丰富的操作，而且操作都是原子性的，支持各种不同方式的排序</p>
+<p>【操作丰富且原子】</p>
+<p>有主控，Redis支持主从同步</p>
+<p><strong>数据模型</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3ca4c899d.png"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3cbb3614a.png"></p>
+<p>Key为String类型</p>
+<p>value类型丰富，支持string, list, hash, set, zset</p>
+<p>只能通过Key对value查询</p>
+<p>【KV结构是简单的，灵活的同时也把更多设计任务交给了用户，怎么把数据存入由用户自己负责】</p>
+<p>注：</p>
+<ul>
+<li><p>Redis的String可以是字符串，整数，浮点数，但都存储为String</p>
+</li>
+<li><p>所有容器包含的都是String</p>
+</li>
+<li><p>set实际上是用散列表来存Key，散列表保证Key不重复，只有Key！！！没有Key对应的Value</p>
+</li>
+<li><p>hash存的是键值对</p>
+</li>
+<li><p>zset存的也是键值对，但有序集合的键被称为成员（member），值则被称为分值（score），分值必须为浮点数</p>
+<p>zset是Redis里面唯一一个既可以根据成员访问元素（这一点和散列一样），又可以根据分值以及分值的排列顺序来访问元素的结构</p>
+<p>【键值对，同时支持有序访问】</p>
+</li>
+<li><p>需要存的是KV时，请考虑hash或zset，存一系列值时，请考虑set和list，只有一个值时，使用string</p>
+</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3d095dfba.png"></p>
+<p>分区：PPT5 41-43<br>Redis总的来说还是得分区来达成分布式的，好坏见PPT</p>
+<p><strong>数据恢复</strong></p>
+<p>其实这个部分应该是很重要的，redis作为内存式数据库，这是他快的根源，一旦断电没备份是灾难式的，不知道为啥没讲</p>
+<p>下文分别介绍了RDB、AOF、混合持久化，主要思路都是备份文件，但中间会有各种取舍</p>
+<p>[探索分析服务数据同步持久化机制](<a target="_blank" rel="noopener" href="https://blog.csdn.net/l569590478/article/details/128332826#:~:text=%E9%80%9A%E5%B8%B8%E6%83%85%E5%86%B5%E4%B8%8Bredis%E7%9A%84%E6%95%B0%E6%8D%AE%E5%85%A8%E9%83%A8%E5%AD%98%E5%82%A8%E5%9C%A8%E5%86%85%E5%AD%98%E4%B8%AD%EF%BC%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%80%E6%97%A6%E6%95%85%E9%9A%9C%E5%8F%91%E7%94%9F%E9%87%8D%E5%90%AF%E6%95%B0%E6%8D%AE%E4%BC%9A%E5%85%A8%E9%83%A8%E4%B8%A2%E5%A4%B1">https://blog.csdn.net/l569590478/article/details/128332826#:~:text=通常情况下redis的数据全部存储在内存中，数据库一旦故障发生重启数据会全部丢失</a> ，,持久化功能在于能够有效地避免因进程退出造成的数据丢失问题 ， 在下次重启时利用之前持久化的文件即可实现数据恢复。)<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3d4b239b7.png"></p>
+<p><strong>文章投票实例</strong>：PPT 50-62</p>
+<p>它是不需要事务的，存文章信息的格式为 article: 文章ID ——hash，hash里存各种键值对信息【这意味着文章间信息联系弱，因为没有跨文章的事务】</p>
+<p>文章间的联系通过另外两个key来解决</p>
+<p>time和score——zset</p>
+<p>在zset中，以文章ID为key，time和score的值为value</p>
+<p>同时需要已投票用户集合，可以用used——hash，文章ID为key，value是一个由用户ID组成的set【也可以看PPT中一样】</p>
+<p>Redis是内存式的，需要节约内存</p>
+<p>可行的方案比如，限定投票时间，过期就淘汰掉相关的已投票用户表，或者评选到期后，可以把分数不够的分数和时间集合都不要了，具体看内存情况</p>
+<p>ZINTERSTORE命令表明，Redis还是支持在set、zset、hash中key上的相关运算的，如果只是Key间有联系，Redis还是可以进行筛选部分值。</p>
+<h2 id="DynamoDB"><a href="#DynamoDB" class="headerlink" title="DynamoDB"></a>DynamoDB</h2><p>KV型，分布式【高并发】，AP型，完全托管（来自亚马逊）</p>
+<p><strong>数据模型</strong>：PPT5 68 69<br>Redis是单纯的key-value键值对存储。<br>DynamoDB虽然也是以key-value形式存储数据的，但是也引入了传统关系型数据库(RDBMS)中的表的概念有了表就有主键的概念，DynamoDB中的分区键和排序键以及二级索引可以应对很多不同场景下的需求。<br>所以DynamoDB更像是处于NoSQL和RDBMS之间的一种数据库。</p>
+<p>Redis由于其性能更多的被用于做缓存。<br>DynamoDB则更接近于RDBMS的应用场景，比如数据存储，增删查改等。<br>不难理解的是，在一款大型线上游戏的服务端，应该是客户端 — 服务端 — 缓存(Redis) — DynamoDB这样的层级结构。</p>
+<h1 id="9-图数据库（Neo4j）"><a href="#9-图数据库（Neo4j）" class="headerlink" title="9.图数据库（Neo4j）"></a>9.图数据库（Neo4j）</h1><h2 id="why图数据库？"><a href="#why图数据库？" class="headerlink" title="why图数据库？"></a><strong>why图数据库？</strong></h2><p><strong>关系数据库的不足</strong></p>
+<p>随着离散数据的增加，数据集的宏观结构会越发复杂和不规整，关系模型将造成大量表连接、稀疏行和非空检查逻辑，<br>关系世界中连通性的增强将转换为连接操作的增加，会阻碍性能，使得数据库难以响应变化的业务需求<br>面对一项联系，可能需要不断用SQL执行连接表，递归查询代价比较高</p>
+<p><strong>其他NoSQL的不足</strong></p>
+<p>Key-value、文档和列存储数据库存储的都是无关联的值&#x2F;文档&#x2F;列，很难用于关联数据<br>对于上述数据库而言，一种添加联系的策略是在某个聚合数据(Aggregate)中嵌入另一个聚合数据标识符，即添加外键，这将导致代价剧增【如引用文档，这样做的代价是比较大的】，即使构建了联系，那反向查询也会成为问题</p>
+<p><strong>图数据库优势</strong></p>
+<p>拥抱联系，在查找各类拓展关系时，速度优势巨大</p>
+<h2 id="Neo4j："><a href="#Neo4j：" class="headerlink" title="Neo4j："></a>Neo4j：</h2><p>图型，分布式【高并发】，CP型</p>
+<ul>
+<li><p>Neo4j 中两个最基本的概念是节点和边</p>
+<p>节点表示实体，边则表示实体之间的关系</p>
+<p>节点和边都可以有自己的属性</p>
+</li>
+<li><p>Neo4j 提供了在对象图上进行查找和遍历的功能：深度搜索，广度搜索【遍历可以限制深度】</p>
+</li>
+</ul>
+<p><strong>完整的ACID，支持事务</strong></p>
+<p>高可用，高伸缩</p>
+<p><strong>数据模型</strong></p>
+<p>Neo4j数据记录在节点和联系中</p>
+<ul>
+<li><p>节点和联系都拥有属性（Properties）</p>
+</li>
+<li><p>节点通过联系关联起来</p>
+</li>
+<li><p>联系一定是有方向的，可以单向可以双向</p>
+</li>
+<li><p>节点经常被用于表示实体，可以有多个属性；最简单的节点也要有一个属性</p>
+</li>
+<li><p>每个关系包含“开始节点”或“从节点”和“到节点”或“结束节点”</p>
+<p>【因此通过关系可以找到很多关联的数据，比如节点集合，关系集合以及他们的属性集合】</p>
+</li>
+<li><p>属性（Properties）是键值对</p>
+<p>键名是字符串<br>属性值是要么是原始值，要么是原始值类型的一个数组，原始值就是常见的bool，char等等PPT6 29</p>
+</li>
+<li><p>联系有类型（Type），节点有标签（label），用于区分某一类</p>
+</li>
+</ul>
+<p><strong>路径&#x2F;遍历</strong></p>
+<p>路径由至少一个节点，通过各种关系连接组成，经常是作为一个查询或者遍历的结果</p>
+<ul>
+<li>遍历的路径：通常用关系的类型和方向来表示</li>
+<li>遍历的顺序：常见的遍历顺序有深度优先和广度优先两种【可以指定深度】</li>
+<li>遍历的唯一性：可以指定在整个遍历中是否允许经过重复的节点、关系或路径</li>
+<li>遍历过程的决策器：用来在遍历过程中判断是否继续进行遍历，以及选择遍历过程的返回结果</li>
+<li>起始节点：遍历过程的起点</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3f7c13856.png"></p>
+<p>索引</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3f7bbcf6e.png"></p>
+<p><strong>数据转换</strong></p>
+<ul>
+<li>RDB to Neo4j:同张表的给相同的label或type，这要看实体集还是联系集，如果没有联系集的话可以根据平常使用情况进行构造，<br>其他就没啥了，其他按照属性填入就可以了</li>
+<li>Key-value DB to Neo4j：KV数据库的联系就更弱了，首先考虑KV间的联系，再具体考虑value和key，value和value间的关系，但好的设计不应该让这种情况出现，这个转换本身就比较诡异</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3fd081aaf.png"></p>
+<ul>
+<li>Document DB to Neo4j：和传统数据库相比下多了个数据库实例，【在传统数据库下是模式，其实不太用得到】，每一级呈现包含关系，最后考虑引用文档&#x2F;集合的联系</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3fd0ceb66.png"></p>
+<p>案例PPT6 46 社交网络</p>
+<h1 id="10-汇总"><a href="#10-汇总" class="headerlink" title="10.汇总"></a>10.汇总</h1><h2 id="数据库汇总"><a href="#数据库汇总" class="headerlink" title="数据库汇总"></a>数据库汇总</h2><p>MongoDB【满足海量存储需求和访问】【文档型】</p>
+<p>HBase（Hadoop）【列簇】列和RDBS转换用sqoop【关系型和HDFS转换】</p>
+<p>Redis【kv+内存式】【高读写】</p>
+<p>Neo4j【图】</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3dfe01bb1.png"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/01/09/659d3dfda9686.png"></p>
+<p>重要的，Mongo可以直接存文件，有二进制数据这个类型【图片等】</p>
+<p>HBase也可以，但对每个值的大小是有实际限制的【不是文件很难撑爆这个限制】</p>
+<p>Neo4j不能存文件</p>
+<p>Redis也不能，也不好，一个内存式的不应该存</p>
+<h2 id="案例汇总"><a href="#案例汇总" class="headerlink" title="案例汇总"></a>案例汇总</h2><p>新浪—Redis+MySQL</p>
+<p>从微博来看的话，新浪用的MySQL好像不是完美的选择，用Mongo或许不错；</p>
+<p>使用MySQL应该是构建年代比较早，而且有一定的事务需求，使用Redis是为了缓冲，应对高并发场景</p>
+<p>视觉中国—MongoDB</p>
+<p>文章类，Mongo很擅长</p>
+<p>优酷—在线评论MongoDB 运营数据分析Hadoop&#x2F;Hbase</p>
+<p>挺好的，显然的选择</p>
+<p>京东—Redis</p>
+<p>这里说Redis应该还是在大并发上，比如说秒杀级别业务，这类业务是典型的读多写少的应用场景，下单和支付才是写请求。所以这个时候，缓存潇洒的出场。</p>
+<p>写操作肯定还是有高度的事务属性，最后下单和支付肯定是要用传统关系型的</p>
+<p>但前期浏览显然不用，都是读，这时候放在Redis就很好了</p>
+<p>携程—HBase，Redis</p>
+<p>HBase显然的数据分析需求，Redis用于缓冲？旅游网站有点意义不明，不过商业环境下一般都有</p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>如果感觉事务性比较强，特别是多表事务，不能接受先重做一个再做另一个中间的时间窗口的，用传统ACID</p>
+<p>感觉分析型，用列族</p>
+<p>感觉联系很多的，图数据库很好，比如朋友圈，本人—朋友ID—根据朋友ID逐一找出文章ID的列表—找到文章—排序，，即完成一项功能需要根据查询结果再查的，可以用图，但他不能存文件，这个就比较尴尬了，要存图片什么的就不要用这个了</p>
+<p>redis啥时候用？多半是个RDB做缓冲，纯的redis几乎没有持久化手段，不太好</p>
+<p>Mongo？我更愿意这么理解，在业务不确定，且没啥对强一致性要求的，可以用Mongo，好处在于随便存，可以存文件！</p>
+<p>最后，某种数据库嗯用也不是不行，但效果可能不太好就是了，也不一定，比如大数据量存储，列族和Mongo感觉都不错</p>
+</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" href="/" title="头像"><img class="post-copyright__author_img_back" src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg" title="头像" alt="头像"><img class="post-copyright__author_img_front" src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg" title="头像" alt="头像"></a><div class="post-copyright__author_name">琴生</div><div class="post-copyright__author_desc">记录一名计算机小白的生涯</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://srj2003.top/2024/01/09/Nosql%E5%A4%8D%E4%B9%A0/">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://srj2003.top/2024/01/09/Nosql%E5%A4%8D%E4%B9%A0/')">Nosql复习</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"><div class="post-reward" onclick="anzhiyu.addRewardMask()"><div class="reward-button button--animated" title="赞赏作者"><i class="anzhiyufont anzhiyu-icon-hand-heart-fill"></i>打赏作者</div><div class="reward-main"><div class="reward-all"><span class="reward-title">感谢你赐予我前进的力量</span><ul class="reward-group"><li class="reward-item"><a href="https://bu.dusays.com/2023/12/26/658ad46c8f066.jpg" target="_blank"><img class="post-qr-code-img" src="https://bu.dusays.com/2023/12/26/658ad46c8f066.jpg" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://bu.dusays.com/2023/12/26/658ad48826c79.jpg" target="_blank"><img class="post-qr-code-img" src="https://bu.dusays.com/2023/12/26/658ad48826c79.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul><a class="reward-main-btn" href="/about/#about-reward" target="_blank"><div class="reward-text">赞赏者名单</div><div class="reward-dec">因为你们的支持让我意识到写文章的价值🙏</div></a></div></div></div><div id="quit-box" onclick="anzhiyu.removeRewardMask()" style="display: none"></div></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://srj2003.top/2024/01/09/Nosql%E5%A4%8D%E4%B9%A0/"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Nosql复习&amp;url=http://srj2003.top/2024/01/09/Nosql%E5%A4%8D%E4%B9%A0/&amp;pic=https://bu.dusays.com/2023/12/29/658ebf7e39c30.jpg" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
+  var currentPageUrl = window.location.href;
+  var input = document.createElement("input");
+  input.setAttribute("value", currentPageUrl);
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  document.body.removeChild(input);
+}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://srj2003.top" target="_blank">琴生</a>！</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"><a class="post-meta__box__tags" href="/tags/Nosql/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>Nosql<span class="tagsPageCount">1</span></a></div></div></div><div class="post_share"><div class="social-share" data-image="https://bu.dusays.com/2023/12/29/658ebf7e39c30.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2023/12/28/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E5%AF%BC%E8%AE%BA%E5%A4%8D%E4%B9%A0/"><img class="prev-cover" src="https://bu.dusays.com/2023/12/29/658ebf7e39c30.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">数据科学导论复习</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> 评论</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)" style="display: none">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><img class="avatar-img" src="https://bu.dusays.com/2023/11/29/6566f400e3b48.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-status"><img class="g-status" src="https://bu.dusays.com/2023/08/24/64e6ce9c507bb.png" alt="status"/></div></div><div class="author-info__description"><div style="line-height:1.38;margin:0.6rem 0;text-align:justify;color:rgba(255, 255, 255, 0.8);">谨以此站记录我的学习与生活。</div></div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/"><h1 class="author-info__name">琴生</h1><div class="author-info__desc">记录一名计算机小白的生涯</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/sunrogjun" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="mailto:srj15063104976@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope faa-tada"></i></a></div></div></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bullhorn anzhiyu-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客，科学上网访问速度会更快~</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>文章目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%90%84%E7%A7%8DaaS"><span class="toc-number">1.</span> <span class="toc-text">1.各种aaS</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E4%BC%A0%E7%BB%9FACID"><span class="toc-number">2.</span> <span class="toc-text">2.传统ACID</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-why-NoSQL"><span class="toc-number">3.</span> <span class="toc-text">3.why NoSQL</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E7%93%B6%E9%A2%88"><span class="toc-number">3.1.</span> <span class="toc-text">关系型数据库瓶颈</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NoSQL%E7%BC%BA%E7%82%B9"><span class="toc-number">3.2.</span> <span class="toc-text">NoSQL缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#why-NOSQL%E7%A7%8D%E7%B1%BB%E5%A4%9A"><span class="toc-number">3.3.</span> <span class="toc-text">why NOSQL种类多</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E9%9D%9E%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">3.4.</span> <span class="toc-text">关系型数据库与非关系型数据库的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%B8%83%E5%BC%8F%EF%BC%88%E5%A6%82MySQL%EF%BC%89"><span class="toc-number">3.5.</span> <span class="toc-text">关系型数据库分布式（如MySQL）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E4%B8%80%E8%87%B4%E6%80%A7%E7%90%86%E8%AE%BA%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.</span> <span class="toc-text">4.一致性理论模型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CAP%E7%90%86%E8%AE%BA"><span class="toc-number">4.1.</span> <span class="toc-text">CAP理论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7%E5%BC%BA%E5%BC%B1"><span class="toc-number">4.2.</span> <span class="toc-text">一致性强弱</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BASE%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.3.</span> <span class="toc-text">BASE模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NWR%E6%A8%A1%E5%9E%8B%E2%80%94%E2%80%94%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-number">4.4.</span> <span class="toc-text">NWR模型——一致性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E5%8D%8F%E8%AE%AE%E2%80%94%E2%80%94%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1"><span class="toc-number">4.5.</span> <span class="toc-text">两阶段提交协议——分布式事务</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E6%95%B0%E6%8D%AE%E5%A4%8D%E5%88%B6"><span class="toc-number">5.</span> <span class="toc-text">5.数据复制</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E6%96%87%E6%A1%A3%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%88MongoDB%EF%BC%89"><span class="toc-number">6.</span> <span class="toc-text">6.文档数据库（MongoDB）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E6%A1%A3%E6%98%AF%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%E7%9A%84%E4%B8%BB%E8%A6%81%E6%A6%82%E5%BF%B5"><span class="toc-number">6.1.</span> <span class="toc-text">文档是数据库中的主要概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E6%A1%A3%E6%95%B0%E6%8D%AE%E5%BA%93%E7%89%B9%E6%80%A7"><span class="toc-number">6.2.</span> <span class="toc-text">文档数据库特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF"><span class="toc-number">6.3.</span> <span class="toc-text">场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E7%82%B9"><span class="toc-number">6.4.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9"><span class="toc-number">6.5.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MongoDB"><span class="toc-number">6.6.</span> <span class="toc-text">MongoDB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CouchDB"><span class="toc-number">6.7.</span> <span class="toc-text">CouchDB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">6.8.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E5%88%97%E6%97%8F%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%88Hbase%EF%BC%89"><span class="toc-number">7.</span> <span class="toc-text">7.列族数据库（Hbase）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%92%8C%E8%A1%8C%E5%BC%8F%E6%AF%94%E8%BE%83"><span class="toc-number">7.1.</span> <span class="toc-text">和行式比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HBase"><span class="toc-number">7.2.</span> <span class="toc-text">HBase</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cassandra"><span class="toc-number">7.3.</span> <span class="toc-text">Cassandra</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MapReduce"><span class="toc-number">7.4.</span> <span class="toc-text">MapReduce</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HBase%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95"><span class="toc-number">7.5.</span> <span class="toc-text">HBase二级索引</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E9%94%AE%E5%80%BC%E5%AF%B9%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%88Redis%EF%BC%89"><span class="toc-number">8.</span> <span class="toc-text">8.键值对数据库（Redis）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9%EF%BC%8C%E9%80%82%E7%94%A8%E6%83%85%E6%99%AF"><span class="toc-number">8.1.</span> <span class="toc-text">优缺点，适用情景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis"><span class="toc-number">8.2.</span> <span class="toc-text">Redis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DynamoDB"><span class="toc-number">8.3.</span> <span class="toc-text">DynamoDB</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-%E5%9B%BE%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%88Neo4j%EF%BC%89"><span class="toc-number">9.</span> <span class="toc-text">9.图数据库（Neo4j）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#why%E5%9B%BE%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%9F"><span class="toc-number">9.1.</span> <span class="toc-text">why图数据库？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Neo4j%EF%BC%9A"><span class="toc-number">9.2.</span> <span class="toc-text">Neo4j：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#10-%E6%B1%87%E6%80%BB"><span class="toc-number">10.</span> <span class="toc-text">10.汇总</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B1%87%E6%80%BB"><span class="toc-number">10.1.</span> <span class="toc-text">数据库汇总</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E6%B1%87%E6%80%BB"><span class="toc-number">10.2.</span> <span class="toc-text">案例汇总</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">10.3.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>最近发布</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/01/09/Nosql%E5%A4%8D%E4%B9%A0/" title="Nosql复习"><img src="https://bu.dusays.com/2023/12/29/658ebf7e39c30.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Nosql复习"/></a><div class="content"><a class="title" href="/2024/01/09/Nosql%E5%A4%8D%E4%B9%A0/" title="Nosql复习">Nosql复习</a><time datetime="2024-01-09T05:25:42.000Z" title="发表于 2024-01-09 13:25:42">2024-01-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/28/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E5%AF%BC%E8%AE%BA%E5%A4%8D%E4%B9%A0/" title="数据科学导论复习"><img src="https://bu.dusays.com/2023/12/29/658ebf7e39c30.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据科学导论复习"/></a><div class="content"><a class="title" href="/2023/12/28/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E5%AF%BC%E8%AE%BA%E5%A4%8D%E4%B9%A0/" title="数据科学导论复习">数据科学导论复习</a><time datetime="2023-12-28T10:56:12.000Z" title="发表于 2023-12-28 18:56:12">2023-12-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/19/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%80%83%E8%AF%95%E7%BA%B2%E8%A6%81/" title="SDU软件学院软件工程考试纲要"><img src="https://bu.dusays.com/2023/12/20/6582a8c3b5077.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SDU软件学院软件工程考试纲要"/></a><div class="content"><a class="title" href="/2023/12/19/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%80%83%E8%AF%95%E7%BA%B2%E8%A6%81/" title="SDU软件学院软件工程考试纲要">SDU软件学院软件工程考试纲要</a><time datetime="2023-12-19T03:47:17.000Z" title="发表于 2023-12-19 11:47:17">2023-12-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/15/%E8%AE%A1%E7%BD%91%E4%BC%A0%E8%BE%93%E5%B1%82/" title="计网传输层"><img src="https://bu.dusays.com/2023/11/29/6566f58dc32b2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计网传输层"/></a><div class="content"><a class="title" href="/2023/12/15/%E8%AE%A1%E7%BD%91%E4%BC%A0%E8%BE%93%E5%B1%82/" title="计网传输层">计网传输层</a><time datetime="2023-12-15T07:02:24.000Z" title="发表于 2023-12-15 15:02:24">2023-12-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/" title="软件工程过程和生命周期建模"><img src="https://cdn.pixabay.com/photo/2016/11/23/14/45/coding-1853305_1280.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="软件工程过程和生命周期建模"/></a><div class="content"><a class="title" href="/2023/12/06/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%BF%87%E7%A8%8B%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%BB%BA%E6%A8%A1/" title="软件工程过程和生命周期建模">软件工程过程和生命周期建模</a><time datetime="2023-12-06T11:05:44.000Z" title="发表于 2023-12-06 19:05:44">2023-12-06</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2023 - 2024 By <a class="footer-bar-link" href="/" title="琴生" target="_blank">琴生</a></div></div><div id="footer-type-tips"></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"><a href="/archives/" title="archive"><div class="headline">文章</div><div class="length-num">16</div></a><a href="/tags/" title="tag"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/" title="category"><div class="headline">分类</div><div class="length-num">2</div></a></div><span class="sidebar-menu-item-title">功能</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="显示模式"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>显示模式</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" href="https://srj2003.top/" title="博客"><img class="back-menu-item-icon" src="/img/favicon.ico" alt="博客"/><span class="back-menu-item-text">博客</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">项目</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener" href="https://image.anheyu.com/" title="安知鱼图床"><img class="back-menu-item-icon" src="https://image.anheyu.com/favicon.ico" alt="安知鱼图床"/><span class="back-menu-item-text">安知鱼图床</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 文章列表</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 社交</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/link/"><i class="anzhiyufont anzhiyu-icon-link faa-tada" style="font-size: 0.9em;"></i><span> 友链</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/comments/"><i class="anzhiyufont anzhiyu-icon-envelope faa-tada" style="font-size: 0.9em;"></i><span> 留言板</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> 关于我</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/essay/"><i class="anzhiyufont anzhiyu-icon-lightbulb faa-tada" style="font-size: 0.9em;"></i><span> 随笔</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/Hexo/" style="font-size: 0.88rem;">Hexo<sup>3</sup></a><a href="/tags/Nosql/" style="font-size: 0.88rem;">Nosql<sup>1</sup></a><a href="/tags/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6/" style="font-size: 0.88rem;">数据科学<sup>1</sup></a><a href="/tags/%E8%AE%A1%E7%BD%91/" style="font-size: 0.88rem;">计网<sup>8</sup></a><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" style="font-size: 0.88rem;">软件工程<sup>3</sup></a></div></div><hr/></div></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="anzhiyufont anzhiyu-icon-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="nav-music"><a id="nav-music-hoverTips" onclick="anzhiyu.musicToggle()" accesskey="m">播放音乐</a><div id="console-music-bg"></div><meting-js id="9091703065" server="netease" type="playlist" mutex="true" preload="none" theme="var(--anzhiyu-main)" data-lrctype="0" order="random" volume="0.4"></meting-js></div><div id="algolia-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="search-wrap"><div id="algolia-search-input"></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-info"><div class="algolia-stats"></div><div class="algolia-poweredBy"></div></div></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://music.163.com/#/playlist?id=9091703065&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@17.8.5/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
+var HoldLog = console.log;
+console.log = function () {};
+let now1 = new Date();
+queueMicrotask(() => {
+  const Log = function () {
+    HoldLog.apply(console, arguments);
+  }; //在恢复前输出日志
+  const grt = new Date("04/01/2021 00:00:00"); //此处修改你的建站时间或者网站上线时间
+  now1.setTime(now1.getTime() + 250);
+  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
+  const dnum = Math.floor(days);
+  const ascll = [
+    `欢迎使用安知鱼!`,
+    `生活明朗, 万物可爱`,
+    `
+        
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+        
+        `,
+    "已上线",
+    dnum,
+    "天",
+    "©2023 By 安知鱼 V1.6.12",
+  ];
+  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
+
+  setTimeout(
+    Log.bind(
+      console,
+      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      "color:#425AEF",
+      "",
+      "color:#425AEF",
+      ""
+    )
+  );
+  setTimeout(
+    Log.bind(
+      console,
+      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
+      "color:white; background-color:#4fd953",
+      "",
+      "",
+      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(
+      console,
+      "%c ⚡ Powered by 安知鱼 %c 你正在访问 琴生 的博客.",
+      "color:white; background-color:#f0ad4e",
+      ""
+    )
+  );
+
+  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
+
+  setTimeout(
+    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
+  );
+});</script><script async src="/anzhiyu/random.js"></script><script src="https://cdn.cbd.int/algoliasearch@4.18.0/dist/algoliasearch-lite.umd.js"></script><script src="https://cdn.cbd.int/instantsearch.js@4.60.0/dist/instantsearch.production.min.js"></script><script src="/js/search/algolia.js"></script><div class="js-pjax"><script>(() => {
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo.srj2003.top/',
+      region: '',
+      onCommentLoaded: () => {
+        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(runFn,0)
+    else getScript('https://cdn.cbd.int/twikoo@1.6.25/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.srj2003.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const runFn = () => {
+    init();
+    
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else {
+      loadTwikoo()
+    }
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script>window.addEventListener('load', () => {
+  const changeContent = (content) => {
+    if (content === '') return content
+
+    content = content.replace(/<img.*?src="(.*?)"?[^\>]+>/ig, '[图片]') // replace image link
+    content = content.replace(/<a[^>]+?href=["']?([^"']+)["']?[^>]*>([^<]+)<\/a>/gi, '[链接]') // replace url
+    content = content.replace(/<pre><code>.*?<\/pre>/gi, '[代码]') // replace code
+    content = content.replace(/<[^>]+>/g,"") // remove html tag
+
+    if (content.length > 150) {
+      content = content.substring(0,150) + '...'
+    }
+    return content
+  }
+
+  const getComment = () => {
+    const runTwikoo = () => {
+      twikoo.getRecentComments({
+        envId: 'https://twikoo.srj2003.top/',
+        region: '',
+        pageSize: 6,
+        includeReply: true
+      }).then(function (res) {
+        const twikooArray = res.map(e => {
+          return {
+            'content': changeContent(e.comment),
+            'avatar': e.avatar,
+            'nick': e.nick,
+            'url': e.url + '#' + e.id,
+            'date': new Date(e.created).toISOString()
+          }
+        })
+
+        saveToLocal.set('twikoo-newest-comments', JSON.stringify(twikooArray), 10/(60*24))
+        generateHtml(twikooArray)
+      }).catch(function (err) {
+        const $dom = document.querySelector('#card-newest-comments .aside-list')
+        $dom.textContent= "无法获取评论，请确认相关配置是否正确"
+      })
+    }
+
+    if (typeof twikoo === 'object') {
+      runTwikoo()
+    } else {
+      getScript('https://cdn.cbd.int/twikoo@1.6.25/dist/twikoo.all.min.js').then(runTwikoo)
+    }
+  }
+
+  const generateHtml = array => {
+    let result = ''
+
+    if (array.length) {
+      for (let i = 0; i < array.length; i++) {
+        result += '<div class=\'aside-list-item\'>'
+
+        if (true) {
+          const name = 'data-lazy-src'
+          result += `<a href='${array[i].url}' class='thumbnail'><img ${name}='${array[i].avatar}' alt='${array[i].nick}'><div class='name'><span>${array[i].nick} </span></div></a>`
+        }
+        
+        result += `<div class='content'>
+        <a class='comment' href='${array[i].url}' title='${array[i].content}'>${array[i].content}</a>
+        <time datetime="${array[i].date}">${anzhiyu.diffDate(array[i].date, true)}</time></div>
+        </div>`
+      }
+    } else {
+      result += '没有评论'
+    }
+
+    let $dom = document.querySelector('#card-newest-comments .aside-list')
+    $dom && ($dom.innerHTML= result)
+    window.lazyLoadInstance && window.lazyLoadInstance.update()
+    window.pjax && window.pjax.refresh($dom)
+  }
+
+  const newestCommentInit = () => {
+    if (document.querySelector('#card-newest-comments .aside-list')) {
+      const data = saveToLocal.get('twikoo-newest-comments')
+      if (data) {
+        generateHtml(JSON.parse(data))
+      } else {
+        getComment()
+      }
+    }
+  }
+
+  newestCommentInit()
+  document.addEventListener('pjax:complete', newestCommentInit)
+})</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/qrcodejs/1.0.0/qrcode.min.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+  // removeEventListener scroll 
+  anzhiyu.removeGlobalFnEvent('pjax')
+  anzhiyu.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//npm.elemecdn.com/penndu@1.0.0/bsz.js"></script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
