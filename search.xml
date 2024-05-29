@@ -4,6 +4,106 @@
   
     
     <entry>
+      <title>项目实训个人周报4</title>
+      <link href="/2024/05/19/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%AE%AD%E4%B8%AA%E4%BA%BA%E5%91%A8%E6%8A%A54/"/>
+      <url>/2024/05/19/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%AE%AD%E4%B8%AA%E4%BA%BA%E5%91%A8%E6%8A%A54/</url>
+      
+        <content type="html"><![CDATA[<p>前面从广义数据的角度对数据集进行了处理，但是没有考虑到大模型的角度。在和负责大模型部分的同学沟通后，进一步对数据进行了处理，使其更贴合大规模预训练模型。通过一番查找对比，我在这里选择了llm_corpus_quality这个项目。</p><p>llm_corpus_quality集成了包含清洗、敏感词过滤、广告词过滤、语料质量自动评估等功能在内的多个数据处理工具与算法，为中文AI大模型提供安全可信的主流数据。项目采用java实现，完整项目见<a href="https://github.com/jiangnanboy/llm_corpus_quality">https://github.com/jiangnanboy/llm_corpus_quality</a></p><p>llm_corpus_quality支持以下特性：</p><ul><li>规则清洗</li><li>敏感词过滤</li><li>广告过滤</li><li>去重</li><li>质量评估</li></ul><p>处理流程如下</p><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/05/29/66570ac0de3ea.png" alt="821577-20240113201957948-1480717496.png"></p><p>大模型训练语料清洗流程，共包括4个阶段5个模块：</p><ol><li>语料清洗规则过滤：通常经过格式转换后的json文件仍存在很多问题，不能直接用于构建训练数据集。通常会以句子或篇章作为过滤单位，通过检测句子或篇章内是否含有大量的怪异符号、是否存在html网页标签等来判断文本是否为合格文本。</li><li>敏感词过滤器：利用自动机，过滤色情、赌博、部分低质量广告等内容的文本。</li><li>广告过滤：利用textcnn模型，过滤涉嫌广告内容。(见<a href="https://github.com/jiangnanboy/ad_detect_textcnn">https://github.com/jiangnanboy/ad_detect_textcnn</a>)</li><li>去重：利用simhash对相似文本片段进行去重。</li><li>质量评估：采用ngram语言模型评估的方法，对语料进行概率预估，文本质量越高的语句，困惑度ppl越低，设定一个ppl阈值，高于这个阈值为低质量语料，可过滤。</li></ol><p>下面是作者给出的示例代码，我稍加改动，对预处理的数据集进行了适配大模型的清洗，得到了最终数据集。</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">// <span class="built_in">hash</span> data of corpus to deduplication (read <span class="keyword">and</span> save)</span><br><span class="line">     var hashFile = PropertiesReader.get(<span class="string">&quot;dedeplication_hash_path&quot;</span>);</span><br><span class="line"></span><br><span class="line">     //<span class="number">1.</span>rule</span><br><span class="line">     var ruleQuality = new RuleQuality();</span><br><span class="line"></span><br><span class="line">     //<span class="number">2.</span>sensitivity <span class="keyword">and</span> advertising detection</span><br><span class="line">     var simpleSenDetectionProcessor = SimpleSenDetectionProcessor.newInstance();</span><br><span class="line">     var senDetection = simpleSenDetectionProcessor.getKWSeeker(<span class="string">&quot;sensitive_words_path&quot;</span>);</span><br><span class="line"></span><br><span class="line">     var ad_detect_model_path = PropertiesReader.get(<span class="string">&quot;ad_detect_model_path&quot;</span>);</span><br><span class="line">     var ad_dict_path = PropertiesReader.get(<span class="string">&quot;ad_dict_path&quot;</span>);</span><br><span class="line">     var stop_words_path = PropertiesReader.get(<span class="string">&quot;stop_words_path&quot;</span>);</span><br><span class="line">     var adDetection = new AdDetection(ad_detect_model_path, ad_dict_path, stop_words_path);</span><br><span class="line"></span><br><span class="line">     //<span class="number">3.</span>text deduplication</span><br><span class="line">     var deDuplication = new DeDuplication(<span class="number">4</span>, <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">     //<span class="number">4.</span>quality evaluation</span><br><span class="line">     var ngramModelPath = PropertiesReader.get(<span class="string">&quot;language_model_path&quot;</span>);</span><br><span class="line">     var qualityEvaluation = new QualityEvaluation(ngramModelPath);</span><br><span class="line"></span><br><span class="line">     // load <span class="built_in">hash</span></span><br><span class="line">     <span class="keyword">if</span>(Files.exists(Paths.get(hashFile))) &#123;</span><br><span class="line">         deDuplication.loadHash(hashFile);</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     var corpusQuality = new CorpusQuality(ruleQuality, senDetection, adDetection, deDuplication, qualityEvaluation, <span class="number">100</span>);</span><br><span class="line">     var corpus = <span class="string">&quot;对未按土地、环保和投资管理等法律法规履行相关手续或手续不符合规定的违规项目，地方政府要按照要求进行全面清理。一，凡是未开工的违规项目，一律不得开工建设；二，凡是不符合产业政策、准入标准、环保要求的违规项目一律停建。&quot;</span>;</span><br><span class="line">     var result = corpusQuality.quality(corpus);</span><br><span class="line">     System.out.println(result);</span><br><span class="line"></span><br><span class="line">     // save <span class="built_in">hash</span></span><br><span class="line">     deDuplication.saveHash(hashFile);</span><br></pre></td></tr></table></figure><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/05/29/66570bac4e6a7.png" alt="Snipaste_2024-05-29_19-04-51.png"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 大学 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 项目实训 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>项目实训个人周报3</title>
+      <link href="/2024/05/06/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%AE%AD%E4%B8%AA%E4%BA%BA%E5%91%A8%E6%8A%A53/"/>
+      <url>/2024/05/06/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%AE%AD%E4%B8%AA%E4%BA%BA%E5%91%A8%E6%8A%A53/</url>
+      
+        <content type="html"><![CDATA[<p>在前面几周的工作中我收集了大模型训练的数据集，下面我进行了预处理和分析等工作。</p><p>观察发现，QA数据集中有空格、“答：”、乱码等不需要的字样，于是进行处理。</p><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/05/29/665707514d0e2.png" alt="Snipaste_2024-05-29_18-46-10.png"></p><p>通过上述模版代码，去除了数据集中”答：”的字样，然后如法炮制，将空格和乱码都进行了去除和清洗。清理完后的部分数据如下图。</p><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/05/29/665707eaa2fa9.png" alt="Snipaste_2024-05-29_18-48-34.png"></p><p>可以观察到，数据的结构比较清晰，q列是问题，a列是答案，并且数据中的空格、乱码等已经被去除。</p><p>下面我进行了数据分析,主要是分析了文本长度。文本长度在大模型训练中很重要，主要有以下几点。</p><ul><li><p><strong>丰富的上下文</strong>：较长的文本通常包含更多的信息和上下文，有助于模型理解复杂的语义关系和捕捉长距离依赖。</p></li><li><p><strong>过长文本的挑战</strong>：处理过长的文本可能导致模型过拟合或者捕捉到过多无关信息，反而可能降低模型性能。需要找到一个平衡点，既包含足够的信息，又不过多冗余。</p></li><li><p><strong>最大长度设定</strong>：在训练过程中，通常会设定一个最大文本长度，超过该长度的文本会被截断。这种策略需要权衡信息完整性和计算资源。</p></li><li><p><strong>任务特定需求</strong>：不同任务对文本长度的需求不同。例如，句子分类任务可能不需要很长的文本，而文档摘要生成则需要处理更长的文本。</p></li><li><p><strong>微调阶段</strong>：在微调阶段，根据具体任务调整文本长度，可以优化模型性能和资源利用效率。</p></li></ul><p>分析文本长度的代码如下。</p><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/05/29/665708b2dfe85.png" alt="Snipaste_2024-05-29_18-52-10.png"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 大学 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 项目实训 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>项目实训个人周报2</title>
+      <link href="/2024/04/23/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%AE%AD%E4%B8%AA%E4%BA%BA%E5%91%A8%E6%8A%A52/"/>
+      <url>/2024/04/23/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%AE%AD%E4%B8%AA%E4%BA%BA%E5%91%A8%E6%8A%A52/</url>
+      
+        <content type="html"><![CDATA[<p>上个周我进行了数据集的采集和整理。</p><p>数据采集方面，我在Huggingface的Datasets库中筛选挑出了以下我认为能用到的数据集，供给大模型训练。</p><p>医疗：<a href="https://huggingface.co/datasets/lavita/medical-qa-datasets?row=15">https://huggingface.co/datasets/lavita/medical-qa-datasets?row=15</a></p><p>​<a href="https://huggingface.co/datasets/blinoff/medical_qa_ru_data?row=7">https://huggingface.co/datasets/blinoff/medical_qa_ru_data?row=7</a></p><p>​<a href="https://huggingface.co/datasets/medalpaca/medical_meadow_medqa">https://huggingface.co/datasets/medalpaca/medical_meadow_medqa</a></p><p>中医：<a href="https://huggingface.co/datasets/FreedomIntelligence/huatuo_knowledge_graph_qa">https://huggingface.co/datasets/FreedomIntelligence/huatuo_knowledge_graph_qa</a></p><p>​<a href="https://huggingface.co/datasets/FreedomIntelligence/huatuo_encyclopedia_qa/viewer/default/train?p=3624&row=362400">https://huggingface.co/datasets/FreedomIntelligence/huatuo_encyclopedia_qa/viewer/default/train?p=3624&amp;row=362400</a></p><p>中文综合：<a href="https://huggingface.co/datasets/m-a-p/COIG-CQIA">https://huggingface.co/datasets/m-a-p/COIG-CQIA</a></p><p>博客节目：<a href="https://huggingface.co/datasets/wavpub/JinJinLeDao_QA_Dataset">https://huggingface.co/datasets/wavpub/JinJinLeDao_QA_Dataset</a></p><p>哲学：<a href="https://huggingface.co/datasets/sayhan/strix-philosophy-qa/viewer/default/train?p=1337&row=133777">https://huggingface.co/datasets/sayhan/strix-philosophy-qa/viewer/default/train?p=1337&amp;row=133777</a></p><p>心理健康：<a href="https://huggingface.co/datasets/Amod/mental_health_counseling_conversations?row=7">https://huggingface.co/datasets/Amod/mental_health_counseling_conversations?row=7</a></p><p>小学数学：<a href="https://huggingface.co/datasets/microsoft/orca-math-word-problems-200k">https://huggingface.co/datasets/microsoft/orca-math-word-problems-200k</a></p><p><strong>计算机相关</strong></p><p>数学：<a href="https://huggingface.co/datasets/math-ai/StackMathQA">https://huggingface.co/datasets/math-ai/StackMathQA</a></p><p>python编程：<a href="https://huggingface.co/datasets/lucasmccabe-lmi/codex_math_qa_alpaca_style/viewer/default/train?p=280&row=28004">https://huggingface.co/datasets/lucasmccabe-lmi/codex_math_qa_alpaca_style/viewer/default/train?p=280&amp;row=28004</a></p><p>​<a href="https://huggingface.co/datasets/flytech/python-codes-25k">https://huggingface.co/datasets/flytech/python-codes-25k</a></p><p>sql编程：<a href="https://huggingface.co/datasets/b-mc2/sql-create-context">https://huggingface.co/datasets/b-mc2/sql-create-context</a></p><p>代码指令：<a href="https://huggingface.co/datasets/m-a-p/CodeFeedback-Filtered-Instruction?row=38">https://huggingface.co/datasets/m-a-p/CodeFeedback-Filtered-Instruction?row=38</a></p><p>​   <a href="https://huggingface.co/datasets/m-a-p/Code-Feedback/viewer/default/train?p=663&row=66310">https://huggingface.co/datasets/m-a-p/Code-Feedback/viewer/default/train?p=663&amp;row=66310</a></p><p>论文NLP：<a href="https://huggingface.co/datasets/allenai/qasper?row=0">https://huggingface.co/datasets/allenai/qasper?row=0</a></p><p>stackExchange：<a href="https://huggingface.co/datasets/lvwerra/stack-exchange-paired?row=16">https://huggingface.co/datasets/lvwerra/stack-exchange-paired?row=16</a></p><p>综合包括computer science：<a href="https://huggingface.co/datasets/MMMU/MMMU/viewer/Computer_Science/test?row=2">https://huggingface.co/datasets/MMMU/MMMU/viewer/Computer_Science/test?row=2</a></p><p>​   <a href="https://huggingface.co/datasets/cais/mmlu/viewer/college_computer_science?row=29">https://huggingface.co/datasets/cais/mmlu/viewer/college_computer_science?row=29</a></p><p>​   <a href="https://huggingface.co/datasets/ikala/tmmluplus/viewer/computer_science/test">https://huggingface.co/datasets/ikala/tmmluplus/viewer/computer_science/test</a></p><p>然后我在kaggle网站上找到了一个与我们项目适配程度较大的数据集，是关于计算机理论知识的问答集：</p><p><a href="https://www.kaggle.com/datasets/mujtabamatin/computer-science-theory-qa-dataset">https://www.kaggle.com/datasets/mujtabamatin/computer-science-theory-qa-dataset</a></p><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/05/29/66570410f2522.png" alt="kaggle数据集.png"></p><p>结合做大模型相关工作的同学的反馈，我选取了上述中的几个数据集，整理成了csv文件，以便于后续的数据清洗等工作。</p><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/05/29/665704bf105aa.png" alt="csv文件.png"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 大学 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 项目实训 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>项目实训个人周报1</title>
+      <link href="/2024/04/14/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%AE%AD%E4%B8%AA%E4%BA%BA%E5%91%A8%E6%8A%A51/"/>
+      <url>/2024/04/14/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%AE%AD%E4%B8%AA%E4%BA%BA%E5%91%A8%E6%8A%A51/</url>
+      
+        <content type="html"><![CDATA[<p>我们组的项目是基于大模型的知识问答教育系统，我在前期的任务是数据采集和处理清洗，以便于构建数据集训练大模型。</p><p>基于调查研究，我对于数据收集的关键点做出了以下归纳。</p><ul><li><p><strong>准确性</strong>：确保数据来源可靠，内容准确无误。错误的信息会导致模型输出错误答案，影响用户体验和教育效果。</p></li><li><p><strong>更新性</strong>：确保数据是最新的，特别是对于动态变化的领域，如科技、法律等。</p></li><li><p><strong>教育层次</strong>：覆盖从基础教育到高等教育的内容，适应不同学习阶段的用户需求。</p></li><li><p><strong>结构化数据</strong>：优先选择结构化数据（如数据库、表格），便于处理和分析。</p></li><li><p><strong>隐私保护</strong>：确保用户数据的匿名化处理，避免泄露个人信息。</p></li><li><p><strong>合规性</strong>：遵守数据保护法律法规，如GDPR等，确保数据收集和使用过程中的合法合规性。</p></li></ul><p>在开始的时候，我准备从百度百科、csdn等知识网站上收集数据，但是我发现这些网站上的数据质量良莠不齐，有的甚至有常识性错误，难以在爬取的时候进行分辨；并且这些数据的格式不一致，在后期处理的时候会造成麻烦，于是放弃。</p><p>然后我找到了Hugging Face 的 Datasets 库，这个库提供了大量预构建的数据集，涵盖了广泛的任务和领域，包括文本分类、情感分析、机器翻译、问答、对话系统等。这些数据集经过整理和优化，便于用户直接使用。这个库还可以通过简单的 API 调用轻松下载和加载数据集，无需手动下载和处理数据文件，比较方便。</p><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2024/05/29/6657005b61ff9.png" alt="Hugging Face 的 Datasets 库.png"></p><p>于是我决定在这里进行数据的收集。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 大学 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 项目实训 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>网络安全课堂作业 IPTABLES试用</title>
       <link href="/2024/03/17/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%AF%BE%E5%A0%82%E4%BD%9C%E4%B8%9A1%20IPTABLES%E8%AF%95%E7%94%A8/"/>
       <url>/2024/03/17/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%AF%BE%E5%A0%82%E4%BD%9C%E4%B8%9A1%20IPTABLES%E8%AF%95%E7%94%A8/</url>
