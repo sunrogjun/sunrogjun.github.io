@@ -12,23 +12,33 @@
     }
     body {
       margin: 0;
-      padding: 32px;
+      padding: 24px 32px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
     }
     h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 30px;
       font-weight: 600;
+      color: #0f172a;
     }
     .subtitle {
-      margin: 0;
-      color: #64748b;
+      margin: 4px 0 0;
+      color: #475569;
       font-size: 15px;
     }
     .toolbar {
-      margin-top: 12px;
+      display: flex;
+      gap: 12px;
     }
     button {
       border: none;
@@ -48,7 +58,7 @@
     }
     #chart {
       width: 100%;
-      height: 720px;
+      height: calc(100vh - 140px);
       background: #fff;
       border-radius: 18px;
       box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
@@ -56,11 +66,15 @@
   </style>
 </head>
 <body>
-  <h1>Checklist vs. CoT 指标雷达图</h1>
-  <p class="subtitle">可切换查看多维度评估（质量 + 复杂度）与官方指标（CodeIF 四指标）的对比。复杂度得分已线性映射到 0~5。</p>
-  <div class="toolbar">
-    <button id="btnMulti" class="active">多维度评估</button>
-    <button id="btnOfficial">官方指标</button>
+  <div class="header">
+    <div>
+      <h1>Checklist vs. CoT 指标雷达图</h1>
+      <p class="subtitle">点击按钮切换「多维度评估」与「官方指标」；复杂度得分已线性映射到 0~5。</p>
+    </div>
+    <div class="toolbar">
+      <button id="btnMulti" class="active">多维度评估</button>
+      <button id="btnOfficial">官方指标</button>
+    </div>
   </div>
   <div id="chart"></div>
 
@@ -105,8 +119,9 @@
       return {
         title: {
           text: title,
-          left: 'center',
-          top: 16,
+          right: 20,
+          top: '18%',
+          textAlign: 'left',
           textStyle: { fontSize: 18, fontWeight: 600 },
         },
         tooltip: {
@@ -120,11 +135,13 @@
         },
         legend: {
           data: seriesData.map(s => s.name),
-          top: 60,
+          orient: 'vertical',
+          right: 20,
+          top: '32%',
         },
         radar: {
           indicator: indicator.map(item => ({ ...item, name: `{label|${item.name}}` })),
-          radius: '70%',
+          radius: '85%',
           splitNumber: 6,
           splitArea: { areaStyle: { color: ['rgba(37,99,235,0.04)', 'rgba(148,163,184,0.05)'] } },
           splitLine: { lineStyle: { color: '#cbd5f5' } },
