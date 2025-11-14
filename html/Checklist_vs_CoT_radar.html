@@ -56,12 +56,30 @@
       color: #fff;
       box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
     }
-    #chart {
+    #chartContainer {
+      position: relative;
       width: 100%;
       height: calc(100vh - 140px);
+    }
+    #chart {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       background: #fff;
       border-radius: 18px;
       box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+    /* 左侧悬浮的小表格，不改变雷达图尺寸 */
+    #tableWrap {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      width: 340px; /* 缩小一些 */
+      max-height: 75%;
+      overflow: hidden;
+      z-index: 10;
+      font-size: 12.5px;
     }
   </style>
 </head>
@@ -76,7 +94,18 @@
       <button id="btnOfficial">官方指标</button>
     </div>
   </div>
-  <div id="chart"></div>
+  <div id="chartContainer">
+    <div id="tableWrap">
+      <h3 id="tableTitle" style="margin:16px 0 8px 0; color:#0f172a;">数据表</h3>
+      <div style="overflow:auto; background:#fff; border-radius:12px; box-shadow:0 10px 25px rgba(15,23,42,0.08);">
+        <table id="dataTable" style="width:100%; border-collapse:collapse; min-width:0;">
+          <thead id="thead"></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="chart"></div>
+  </div>
 
   <script>
     const palette = [
@@ -108,9 +137,9 @@
     ];
 
     const officialSeries = [
-      { name: 'checklist', value: [0.025, 0.3848299646, 0.2778107800, 0.2625640790] },
-      { name: 'cot_explicit', value: [0.025, 0.3642269280, 0.2662284297, 0.2563227114] },
-      { name: 'cot_implicit', value: [0.02, 0.3592132444, 0.2616003945, 0.2405706040] },
+      { name: 'checklist', value: [0.03, 0.434225193408243, 0.32781015656170476, 0.2638823648616608] },
+      { name: 'cot_explicit', value: [0.03, 0.41870801912655636, 0.31328021198357897, 0.2657424422198032] },
+      { name: 'cot_implicit', value: [0.03, 0.4085587973902603, 0.30976227496273984, 0.2559806424225931] },
     ];
 
     const chart = echarts.init(document.getElementById('chart'));
@@ -177,10 +206,12 @@
         chart.setOption(makeOption('多维度评估（质量 + 复杂度）', multiIndicator, multiSeries));
         btnMulti.classList.add('active');
         btnOfficial.classList.remove('active');
+        renderTable('multi');
       } else {
         chart.setOption(makeOption('官方指标（CodeIF 四指标）', officialIndicator, officialSeries));
         btnMulti.classList.remove('active');
         btnOfficial.classList.add('active');
+        renderTable('official');
       }
     }
 
@@ -191,6 +222,34 @@
 
     render('multi');
     window.addEventListener('resize', () => chart.resize());
+
+    // 渲染表格（与雷达图数据同步）
+    function renderTable(mode) {
+      const thead = document.getElementById('thead');
+      const tbody = document.getElementById('tbody');
+      const title = document.getElementById('tableTitle');
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+      let headers = [];
+      let rows = [];
+      if (mode === 'multi') {
+        title.textContent = '多维度评估（质量 + 复杂度）数据表';
+        headers = ['策略', '可读性', '流畅性', '完整性', '鲁棒性', '安全性', '静态复杂度(×5)'];
+        rows = multiSeries.map(s => [s.name, ...s.value.map(v => typeof v === 'number' ? v.toFixed(3) : v)]);
+      } else {
+        title.textContent = '官方指标（CodeIF 四指标）数据表';
+        headers = ['策略', 'CSR', 'SSR', 'RSR', 'CCSR'];
+        rows = officialSeries.map(s => [s.name, ...s.value.map(v => typeof v === 'number' ? v.toFixed(6) : v)]);
+      }
+      // 头
+      const th = headers.map(h => `<th style="text-align:center; padding:10px 12px; border-bottom:1px solid #e5e7eb; color:#0f172a; background:#f8fafc;">${h}</th>`).join('');
+      thead.innerHTML = `<tr>${th}</tr>`;
+      // 行
+      rows.forEach(r => {
+        const tds = r.map((c,i) => `<td style="text-align:${i===0?'left':'right'}; padding:10px 12px; border-bottom:1px solid #eef2f7; color:#111827;">${c}</td>`).join('');
+        tbody.insertAdjacentHTML('beforeend', `<tr>${tds}</tr>`);
+      });
+    }
   </script>
 </body>
 </html>
