@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>API 神经元消融结果可视化</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f7fb;
+      color: #222;
+    }
+    .container {
+      width: 100vw;
+      height: 100vh;
+      box-sizing: border-box;
+      margin: 0;
+      background: #fff;
+      border-radius: 0;
+      padding: 16px 20px 24px;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+    }
+    h1 {
+      font-size: 22px;
+      margin: 0 0 4px;
+    }
+    .subtitle {
+      color: #555;
+      font-size: 14px;
+      margin: 0 0 16px;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 12px;
+    }
+    button {
+      border: none;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: #2563eb;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .metric-label {
+      font-size: 14px;
+      color: #444;
+    }
+    .chart-wrapper {
+      flex: 1;
+      min-height: 0;
+    }
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>API 神经元消融结果可视化</h1>
+  <p class="subtitle">
+    对比 top100 神经元消融 vs 随机100 神经元消融（Zero-out / Mean-ablate）
+  </p>
+
+  <div class="controls">
+    <div class="metric-label">
+      当前指标：<span id="metric-name">变化数（500 条里首 token 改变的样本数）</span>
+    </div>
+    <button id="toggle-metric">切换为 KL 散度</button>
+  </div>
+
+  <div class="chart-wrapper">
+    <canvas id="ablationChart"></canvas>
+  </div>
+</div>
+
+<script>
+  // X 轴标签：先 deepseek 的 4 组，再 starcoder 的 4 组
+  const labels = [
+    "[deepseek] numpy",
+    "[deepseek] torch",
+    "[deepseek] tensorflow",
+    "[deepseek] all",
+    "[starcoder] numpy",
+    "[starcoder] torch",
+    "[starcoder] tensorflow",
+    "[starcoder] all"
+  ];
+
+  // ========= 数据（已按 deepseek 在前、starcoder 在后重排）=========
+
+  // 变化数（500 条里首 token 不同的样本数）
+  const changeTopZero  = [ 3, 10,  4,  9, 28, 92, 32, 63];
+  const changeTopMean  = [ 4,  1,  1,  2,  8, 19, 18, 25];
+  const changeRandZero = [ 5,  2,  7,  3,  2,  3,  2, 10];
+  const changeRandMean = [ 5,  1,  0,  0,  2,  2,  3,  4];
+
+  // KL(p_base || p_ablate)
+  const klTopZero  = [0.035, 0.038, 0.030, 0.058, 0.176, 0.754, 0.233, 0.426];
+  const klTopMean  = [0.024, 0.013, 0.008, 0.023, 0.051, 0.132, 0.156, 0.132];
+  const klRandZero = [0.026, 0.020, 0.010, 0.033, 0.049, 0.060, 0.045, 0.049];
+  const klRandMean = [0.007, 0.008, 0.001, 0.006, 0.027, 0.023, 0.027, 0.011];
+
+  // 注意：顺序改成 Zero-out 一组，Mean-ablate 一组
+  function buildDatasets(metric) {
+    const isChange = metric === "change";
+    return [
+      {
+        label: "Zero-out top100",
+        data: isChange ? changeTopZero : klTopZero
+      },
+      {
+        label: "Zero-out 随机100",
+        data: isChange ? changeRandZero : klRandZero
+      },
+      {
+        label: "Mean-ablate top100",
+        data: isChange ? changeTopMean : klTopMean
+      },
+      {
+        label: "Mean-ablate 随机100",
+        data: isChange ? changeRandMean : klRandMean
+      }
+    ];
+  }
+
+  const ctx = document.getElementById("ablationChart").getContext("2d");
+  let currentMetric = "change";
+
+  const chartConfig = {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: buildDatasets(currentMetric)
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: "index",
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          position: "top"
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.dataset.label || "";
+              const value = context.parsed.y;
+              if (currentMetric === "change") {
+                return `${label}: ${value} 条样本`;
+              } else {
+                return `${label}: ${value.toFixed(3)} KL`;
+              }
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxRotation: 45,
+            minRotation: 0
+          }
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: "变化数（500 条里首 token 改变的样本数）"
+          }
+        }
+      }
+    }
+  };
+
+  const ablationChart = new Chart(ctx, chartConfig);
+
+  const toggleBtn = document.getElementById("toggle-metric");
+  const metricNameSpan = document.getElementById("metric-name");
+
+  toggleBtn.addEventListener("click", () => {
+    currentMetric = currentMetric === "change" ? "kl" : "change";
+
+    ablationChart.data.datasets = buildDatasets(currentMetric);
+
+    if (currentMetric === "change") {
+      ablationChart.options.scales.y.title.text =
+        "变化数（500 条里首 token 改变的样本数）";
+      metricNameSpan.textContent =
+        "变化数（500 条里首 token 改变的样本数）";
+      toggleBtn.textContent = "切换为 KL 散度";
+    } else {
+      ablationChart.options.scales.y.title.text = "KL(p_base || p_ablate)";
+      metricNameSpan.textContent = "KL(p_base || p_ablate)";
+      toggleBtn.textContent = "切换为 变化数";
+    }
+
+    ablationChart.update();
+  });
+</script>
+</body>
+</html>
