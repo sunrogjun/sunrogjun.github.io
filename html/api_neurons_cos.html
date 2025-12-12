@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>API 神经元消融（点积 vs cosine）</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f7fb;
+      color: #222;
+    }
+    .container {
+      width: 100vw;
+      height: 100vh;
+      box-sizing: border-box;
+      margin: 0;
+      background: #fff;
+      padding: 16px 20px 24px;
+      display: flex;
+      flex-direction: column;
+    }
+    h1 {
+      font-size: 22px;
+      margin: 0 0 4px;
+    }
+    .subtitle {
+      color: #555;
+      font-size: 14px;
+      margin: 0 0 16px;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 12px;
+    }
+    button {
+      border: none;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: #2563eb;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .metric-label {
+      font-size: 14px;
+      color: #444;
+    }
+    .chart-wrapper {
+      flex: 1;
+      min-height: 0;
+    }
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>API 神经元消融（点积 VS cosine）</h1>
+  <p class="subtitle">
+    模型：starcoder2-3b；对比「点积 / cosine 选神经元」在 Zero-out / Mean-ablate 下的效果
+  </p>
+
+  <div class="controls">
+    <div class="metric-label">
+      当前指标：<span id="metric-name">变化数（500 条里补全的 API 与 base 不同的样本数）</span>
+    </div>
+    <button id="toggle-metric">切换为 KL 散度</button>
+  </div>
+
+  <div class="chart-wrapper">
+    <canvas id="ablationChart"></canvas>
+  </div>
+</div>
+
+<script>
+  // X 轴：不同种子集合
+  const labels = [
+    "[numpy, torch, tensorflow]",
+    "[torch]",
+    "[numpy]",
+    "[tensorflow]"
+  ];
+
+  // ========= 数据 =========
+  // 1) 变化数（500 条里补全的 API 与 base 不同的个数）
+  // 点积
+  const changeDotZero  = [63, 92, 44, 32];
+  const changeDotMean  = [25, 19, 21, 18];
+  // cosine
+  const changeCosZero  = [56, 74, 53, 44];
+  const changeCosMean  = [20, 16, 16, 21];
+
+  // 2) KL(p_base || p_ablate)
+  // 点积
+  const klDotZero  = [0.426, 0.754, 0.176, 0.233];
+  const klDotMean  = [0.132, 0.132, 0.051, 0.156];
+  // cosine
+  const klCosZero  = [0.437, 0.661, 0.262, 0.272];
+  const klCosMean  = [0.125, 0.122, 0.096, 0.160];
+
+  // 构造 Chart.js 的数据集
+  function buildDatasets(metric) {
+    const isChange = metric === "change";
+    return [
+      {
+        label: "点积 Zero-out",
+        data: isChange ? changeDotZero : klDotZero
+      },
+      {
+        label: "点积 Mean-ablate",
+        data: isChange ? changeDotMean : klDotMean
+      },
+      {
+        label: "cosine Zero-out",
+        data: isChange ? changeCosZero : klCosZero
+      },
+      {
+        label: "cosine Mean-ablate",
+        data: isChange ? changeCosMean : klCosMean
+      }
+    ];
+  }
+
+  const ctx = document.getElementById("ablationChart").getContext("2d");
+  let currentMetric = "change";
+
+  const chartConfig = {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: buildDatasets(currentMetric)
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: "index",
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          position: "top"
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.dataset.label || "";
+              const value = context.parsed.y;
+              if (currentMetric === "change") {
+                return `${label}: ${value} 条样本`;
+              } else {
+                return `${label}: ${value.toFixed(3)} KL`;
+              }
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxRotation: 30,
+            minRotation: 0
+          }
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: "变化数（500 条里补全的 API 与 base 不同的样本数）"
+          }
+        }
+      }
+    }
+  };
+
+  const ablationChart = new Chart(ctx, chartConfig);
+
+  // 切换按钮
+  const toggleBtn = document.getElementById("toggle-metric");
+  const metricNameSpan = document.getElementById("metric-name");
+
+  toggleBtn.addEventListener("click", () => {
+    currentMetric = currentMetric === "change" ? "kl" : "change";
+
+    ablationChart.data.datasets = buildDatasets(currentMetric);
+
+    if (currentMetric === "change") {
+      ablationChart.options.scales.y.title.text =
+        "变化数（500 条里补全的 API 与 base 不同的样本数）";
+      metricNameSpan.textContent =
+        "变化数（500 条里补全的 API 与 base 不同的样本数）";
+      toggleBtn.textContent = "切换为 KL 散度";
+    } else {
+      ablationChart.options.scales.y.title.text = "KL(p_base || p_ablate)";
+      metricNameSpan.textContent = "KL(p_base || p_ablate)";
+      toggleBtn.textContent = "切换为 变化数";
+    }
+
+    ablationChart.update();
+  });
+</script>
+</body>
+</html>
