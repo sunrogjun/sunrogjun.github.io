@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Logit Lens Rank Viewer (check_full_rank)</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b0f17;
+        --panel: #121a2a;
+        --text: #e7eefc;
+        --muted: #9bb0d0;
+        --border: rgba(170, 190, 230, 0.18);
+        --accent: #7aa2ff;
+        --accent2: #ffa06a;
+        --accent3: #54d6a8;
+        --shadow: rgba(0, 0, 0, 0.35);
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f7f9ff;
+          --panel: #ffffff;
+          --text: #12203a;
+          --muted: #506483;
+          --border: rgba(14, 34, 67, 0.15);
+          --shadow: rgba(10, 20, 40, 0.10);
+        }
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+          "Apple Color Emoji", "Segoe UI Emoji";
+        background: var(--bg);
+        color: var(--text);
+        height: 100vh;
+        overflow: hidden;
+      }
+      .wrap {
+        max-width: none;
+        margin: 0;
+        padding: 14px 14px 16px;
+        height: 100vh;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow: hidden;
+      }
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 650;
+        letter-spacing: 0.2px;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .main {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        gap: 12px;
+        overflow: hidden;
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 10px 28px var(--shadow);
+      }
+      .meta {
+        padding: 12px 12px 10px;
+      }
+      .meta .k {
+        color: var(--muted);
+      }
+      .meta-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      pre {
+        margin: 0;
+        padding: 14px 14px;
+        overflow: auto;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.12);
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      #promptPre {
+        margin-top: 2px;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+      .controls {
+        padding: 12px 12px 0;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .btns {
+        display: inline-flex;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      button {
+        border: 0;
+        background: transparent;
+        padding: 8px 12px;
+        color: var(--text);
+        cursor: pointer;
+        font-size: 13px;
+      }
+      button.active {
+        background: rgba(122, 162, 255, 0.18);
+        color: var(--text);
+      }
+      button:hover {
+        background: rgba(122, 162, 255, 0.10);
+      }
+      .toggle {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 13px;
+        user-select: none;
+      }
+      .chart {
+        margin-top: 12px;
+        padding: 10px 10px 14px;
+        flex: 1;
+        min-height: 0;
+      }
+      #chartRoot {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .footnote {
+        padding: 0 12px 12px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+      .error {
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 110, 110, 0.35);
+        background: rgba(255, 110, 110, 0.08);
+        color: var(--text);
+        font-size: 13px;
+        white-space: pre-wrap;
+      }
+      .tooltip {
+        position: fixed;
+        pointer-events: none;
+        z-index: 10;
+        max-width: min(520px, calc(100vw - 24px));
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 12px 30px var(--shadow);
+        padding: 10px 10px;
+        opacity: 0;
+        transform: translateY(-4px);
+        transition: opacity 80ms ease, transform 80ms ease;
+      }
+      .tooltip.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .tt-title {
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+        margin-bottom: 6px;
+      }
+      .tt-title b {
+        font-size: 13px;
+      }
+      .tt-title span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .tt-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .tt-table td {
+        padding: 2px 2px;
+        vertical-align: top;
+      }
+      .tt-table td:nth-child(1) {
+        color: var(--muted);
+        width: 28px;
+      }
+      .tt-table td:nth-child(3) {
+        color: var(--muted);
+        width: 96px;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .badge.gt {
+        padding: 4px 10px;
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--text);
+        border-color: rgba(122, 162, 255, 0.55);
+        background: rgba(122, 162, 255, 0.20);
+      }
+      .badge.finalTok {
+        padding: 4px 10px;
+        font-weight: 650;
+        font-size: 13px;
+        color: var(--text);
+        border-color: rgba(84, 214, 168, 0.55);
+        background: rgba(84, 214, 168, 0.14);
+      }
+      .panel.meta {
+        flex: 0 0 auto;
+      }
+      .panel.chartPanel {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .panel.side {
+        width: min(520px, 38vw);
+        min-width: 360px;
+        max-width: 44vw;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .panel.chartPanel {
+        overflow: hidden;
+      }
+      .meta-grid {
+        min-height: 0;
+      }
+      .meta {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      @media (max-width: 980px) {
+        body {
+          overflow: auto;
+        }
+        .wrap {
+          height: auto;
+          overflow: visible;
+        }
+        .main {
+          flex-direction: column;
+          overflow: visible;
+        }
+        .panel.side {
+          width: auto;
+          min-width: 0;
+          max-width: none;
+        }
+        .chart {
+          min-height: 520px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Logit Lens：最终 token 在每一层的排名趋势（含 Top-5 概率）</h1>
+
+      <div class="main">
+        <div class="panel meta side">
+          <div class="meta-grid" style="height: 100%">
+            <div class="row">
+              <span class="badge" id="datasetInfo">dataset: (loading...)</span>
+              <span class="badge" id="sampleInfo">sample_index: (loading...)</span>
+              <span class="badge gt" id="gtInfo">ground_truth: (loading...)</span>
+            </div>
+            <div style="display: flex; flex-direction: column; min-height: 0">
+              <div class="k" style="margin: 0 0 6px; font-size: 16px; font-weight: 650">Prompt</div>
+              <pre id="promptPre">(loading...)</pre>
+            </div>
+          </div>
+          <div id="errorBox" class="error" style="display: none"></div>
+        </div>
+
+        <div class="panel chartPanel">
+          <div class="controls">
+            <div class="btns" role="tablist" aria-label="method switch">
+              <button id="btnOriginal" class="active" type="button">Original</button>
+              <button id="btnZero" type="button">置零消融</button>
+              <button id="btnGaussian" type="button">高斯噪声</button>
+            </div>
+            <label class="toggle" title="对 rank 取 log10，便于观察大数值范围">
+              <input id="logScale" type="checkbox" />
+              <span>log10(rank)</span>
+            </label>
+            <label class="toggle" title="在曲线上追加一个“final”点（使用 final_layer 里的 rank）">
+              <input id="includeFinal" type="checkbox" checked />
+              <span>包含 final 点</span>
+            </label>
+            <span class="badge finalTok" id="finalTokenInfo">final token: (loading...)</span>
+          </div>
+          <div class="chart">
+            <svg id="chartRoot" viewBox="0 0 1200 720" aria-label="rank chart"></svg>
+          </div>
+          <div class="footnote">
+            悬停在点上会显示该层的 Top-5 token 与概率（该页面已内嵌样本数据，可直接用 <code>file://</code> 打开）。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tooltip" class="tooltip" aria-hidden="true">
+      <div class="tt-title">
+        <b id="ttLayer">Layer ?</b>
+        <span id="ttRank">rank: ?</span>
+      </div>
+      <div id="ttBest" style="margin-bottom: 6px; color: var(--muted); font-size: 12px"></div>
+      <table class="tt-table" id="ttTable"></table>
+    </div>
+
+    <script>
+      // Self-contained: embed the single sample data into HTML (no fetch).
+      const EMBEDDED_B64_CHUNKS = [
+        "eyJzYW1wbGVfaW5kZXgiOjI2MSwiZGF0YXNldF9maWxlIjoiL2hvbWUvZmRzZS9zcmovYXBpX25ldXJvbi9lbWJlZGRpbmctc3BhY2UvZmluZF9hcGlfbmV1cm9ucy9tYXRyaXhfdjIvc2MtM0IvbWF0cml4X2RhdGFzZXRfdjJfc3RhcmNvZGVyMi0zYl9iYXNlX21hdGNoZXMuanNvbmwiLCJwcm9tcHQiOiJkZWYgY2hlY2tfZnVsbF9yYW5rKGlucHV0KTpcbiAgICBcIlwiXCJjaGVjayBpbnB1dCBtYXRyaXggaXMgZnVsbCByYW5rLiBpZiBub3QsIHByaW50IHJhbmsuXCJcIlwiXG4gICAgaWYgaW5wdXQuZGltKCkgPCAzOlxuICAgICAgICBpbnB1dCA9IGlucHV0LnVuc3F1ZWV6ZSgwKVxuICAgIEMgPSBpbnB1dC5zaXplKDEpXG4gICAgZm9yIG1hdCBpbiBpbnB1dDpcbiAgICAgICAgcmFuayA9IHRvcmNoLiIsImdyb3VuZF90cnV0aCI6Im1hdHJpeCIsIm9yaWdpbmFsIjp7InRva2VuIjoibWF0cml4IiwicmFua3MiOnsiLTEiOjI4NzksIjAiOjEyNTM2LCIxIjozOTE0MSwiMiI6MzUyNTcsIjMiOjI5MTM1LCI0IjozOTUxNiwiNSI6MTY4OTcsIjYiOjE3MjczLCI3IjoxODA5OSwiOCI6OTI4MiwiOSI6MTE4OTcsIjEwIjoxNjgyOSwiMTEiOjEwMzY5LCIxMiI6ODg2MCwiMTMiOjE2NjAxLCIxNCI6MTI1NTAsIjE1IjoxMTQxMiwiMTYiOjU0NDAsIjE3Ijo2MTI2LCIxOCI6MTgzMCwiMTkiOjMwNiwiMjAiOjExOSwiMjEiOjIzLCIyMiI6MTEsIjIzIjoxMCwiMjQiOjcsIjI1Ijo3LCIyNiI6NiwiMjciOjcsIjI4IjoxLCIyOSI6MSwiZmluYWwiOjF9LCJ0b3BzIjp7Ii0xIjpbWyIuIiwxLjBdLFsiPGZpbV9taWRkbGU+IiwwLjBdLFsiPHxlbmRvZnRleHR8PiIsMC4wXSxbIjxmaW1fc3VmZml4PiIsMC4wXSxbIjxmaW1fcHJlZml4PiIsMC4wXV0sIjAiOltbIsSgIiwwLjA0Nzc2MDAwOTc2NTYy",
+        "NV0sWyJDb21wb3NlIiwwLjAxMzY4NzEzMzc4OTA2MjVdLFsiRE8iLDAuMDEyODAyMTI0MDIzNDM3NV0sWyJUUmVzdWx0IiwwLjAxMDk1NTgxMDU0Njg3NV0sWyJpZ3NhdyIsMC4wMDkwNDg0NjE5MTQwNjI1XV0sIjEiOltbInVwbGljYXRlcyIsMC4yODA3NjE3MTg3NV0sWyLEoGd1YXJhbnRlIiwwLjAxNDk5OTM4OTY0ODQzNzVdLFsiT1NYIiwwLjAxMzk3NzA1MDc4MTI1XSxbIsOlwrvCtiIsMC4wMDg4MTk1ODAwNzgxMjVdLFsibW5vcHEiLDAuMDA4MzQ2NTU3NjE3MTg3NV1dLCIyIjpbWyJ1cGxpY2F0ZXMiLDAuMDY1NjEyNzkyOTY4NzVdLFsiaWdzYXciLDAuMDMzMjY0MTYwMTU2MjVdLFsidWxhdG9yeSIsMC4wMTE5NDc2MzE4MzU5Mzc1XSxbImNyaW1pbmF0b3IiLDAuMDEwNjI3NzQ2NTgyMDMxMjVdLFsiw4XEpMOExKdjIiwwLjAxMDQyMTc1MjkyOTY4NzVdXSwiMyI6W1siY3JpbWluYXRvciIsMC4wMjIzMzg4NjcxODc1XSxbImF2eCIsMC4wMDg1NDQ5MjE4NzVdLFsiw6fCusKqIiwwLjAwNzU5ODg3Njk1MzEyNV0sWyJpZ3NhdyIsMC4wMDY1NTM2NDk5MDIzNDM3NV0sWyJleSIsMC4wMDY0NTA2NTMwNzYxNzE4NzVdXSwiNCI6W1siaWdzYXciLDAuMDM1NzY2NjAxNTYyNV0sWyJsaWNpdCIsMC4wMTg5OTcxOTIzODI4MTI1XSxbIsOnwrrCqiIsMC4wMTE3MTExMjA2MDU0Njg3NV0sWyJtYWJsZSIsMC4wMTA2NTgyNjQxNjAxNTYyNV0sWyLEoGRpYW0iLDAuMDA4MjM5NzQ2MDkzNzVdXSwiNSI6W1siw6nEqcSsIiwwLjAzNzY4OTIwODk4NDM3NV0sWyLEoGRpYW0iLDAuMDE1MjI4MjcxNDg0Mzc1XSxbIsSgZXllcyIsMC4wMDk4MzQyODk1NTA3ODEyNV0sWyJJWCIsMC4wMDg3NDMyODYxMzI4MTI1XSxbIlNXSUciLDAuMDA4NTQ0OTIxODc1XV0sIjYiOltbIsOpxKnErCIsMC4wNDA5MjQw",
+        "NzIyNjU2MjVdLFsibXVuaXR5IiwwLjAyOTcwODg2MjMwNDY4NzVdLFsiVFRZIiwwLjAxODczNzc5Mjk2ODc1XSxbIlNXSUciLDAuMDEzMzg5NTg3NDAyMzQzNzVdLFsixKBkaWFtIiwwLjAxMzA3Njc4MjIyNjU2MjVdXSwiNyI6W1siw6nEqcSsIiwwLjAzMzQ3Nzc4MzIwMzEyNV0sWyLEoHRvcnQiLDAuMDE4NDkzNjUyMzQzNzVdLFsixKBkaWFtIiwwLjAxNDE3NTQxNTAzOTA2MjVdLFsiVFRZIiwwLjAxMjgwOTc1MzQxNzk2ODc1XSxbIm51bmciLDAuMDA4MjM5NzQ2MDkzNzVdXSwiOCI6W1siaWZpeiIsMC4wMjU4MzMxMjk4ODI4MTI1XSxbIlRUWSIsMC4wMTUwNjgwNTQxOTkyMTg3NV0sWyLDqcSpxKwiLDAuMDEwNjgxMTUyMzQzNzVdLFsibWFibGUiLDAuMDA5OTE4MjEyODkwNjI1XSxbIsSgZGlhbSIsMC4wMDk4ODAwNjU5MTc5Njg3NV1dLCI5IjpbWyJow4PCtiIsMC4wMjY1MzUwMzQxNzk2ODc1XSxbIsOFxL1jaSIsMC4wMjE2NTIyMjE2Nzk2ODc1XSxbIm51bmciLDAuMDExNTA1MTI2OTUzMTI1XSxbIm1hYmxlIiwwLjAxMDIzMTAxODA2NjQwNjI1XSxbIsSgZGlhbSIsMC4wMDk4ODAwNjU5MTc5Njg3NV1dLCIxMCI6W1sixKBkaWFtIiwwLjAzNjIyNDM2NTIzNDM3NV0sWyJtYWJsZSIsMC4wMzEyMTk0ODI0MjE4NzVdLFsic3RpdGlhbCIsMC4wMTE4NDg0NDk3MDcwMzEyNV0sWyJQUk9QRVIiLDAuMDExMjIyODM5MzU1NDY4NzVdLFsixKB0b3J0IiwwLjAxMDcwNDA0MDUyNzM0Mzc1XV0sIjExIjpbWyJtYWJsZSIsMC4xNDM2NzY3NTc4MTI1XSxbImFpbGFibGUiLDAuMDMzNTk5ODUzNTE1NjI1XSxbIlNhbmQiLDAuMDE3MTUwODc4OTA2MjVdLFsiaWZpeiIsMC4wMTQ1NjQ1MTQxNjAxNTYyNV0sWyJlbnN1cmUiLDAuMDE0MjIxMTkxNDA2MjVdXSwiMTIiOltbIm1hYmxlIiwwLjA2MjU2",
+        "MTAzNTE1NjI1XSxbIsSgZGlhbSIsMC4wMzM3MjE5MjM4MjgxMjVdLFsiaWZpeiIsMC4wMTU2ODYwMzUxNTYyNV0sWyLEoGVtcHR5IiwwLjAxMDEzMTgzNTkzNzVdLFsiZGVzdHJ1Y3QiLDAuMDA5MDc4OTc5NDkyMTg3NV1dLCIxMyI6W1sixKBkaWFtIiwwLjA5ODc1NDg4MjgxMjVdLFsic3RpdGlhbCIsMC4wMjk0MTg5NDUzMTI1XSxbIm1hYmxlIiwwLjAyNzAwODA1NjY0MDYyNV0sWyJkeWxkIiwwLjAxODk5NzE5MjM4MjgxMjVdLFsiaXNwaWVsIiwwLjAxNDc5MzM5NTk5NjA5Mzc1XV0sIjE0IjpbWyJzdGl0aWFsIiwwLjA0MzQyNjUxMzY3MTg3NV0sWyLEoGRpYW0iLDAuMDMyNzc1ODc4OTA2MjVdLFsixKBzYWZlIiwwLjAyNTkyNDY4MjYxNzE4NzVdLFsiaWZpeiIsMC4wMTQwOTkxMjEwOTM3NV0sWyJTYWZlIiwwLjAxMTA2MjYyMjA3MDMxMjVdXSwiMTUiOltbIsSgZGlhbSIsMC4wMTk2NTMzMjAzMTI1XSxbIsSgc2lsdmVyIiwwLjAxMDE5Mjg3MTA5Mzc1XSxbImlmZWMiLDAuMDA4OTk1MDU2MTUyMzQzNzVdLFsiaWZpeiIsMC4wMDgzNTQxODcwMTE3MTg3NV0sWyJsaWNrZW4iLDAuMDA4MDY0MjcwMDE5NTMxMjVdXSwiMTYiOltbImlmaXoiLDAuMDMxNDk0MTQwNjI1XSxbIlBST1BFUiIsMC4wMjA4MTI5ODgyODEyNV0sWyLEoHRvcnQiLDAuMDE5MTA0MDAzOTA2MjVdLFsiaXNwaWVsIiwwLjAxODA4MTY2NTAzOTA2MjVdLFsiUkVTU0VEIiwwLjAxNDE5ODMwMzIyMjY1NjI1XV0sIjE3IjpbWyJpZml6IiwwLjAxODU2OTk0NjI4OTA2MjVdLFsixKBkaWFtIiwwLjAxMzA2OTE1MjgzMjAzMTI1XSxbIsSgcGVycyIsMC4wMTIyMjk5MTk0MzM1OTM3NV0sWyJpc3BpZWwiLDAuMDExNzU2ODk2OTcyNjU2MjVdLFsixKBueiIsMC4wMTAwMTczOTUwMTk1MzEyNV1dLCIxOCI6W1siXCI/XCIsIiww",
+        "LjAxNzYwODY0MjU3ODEyNV0sWyJcIj57eyQiLDAuMDE2MTU5MDU3NjE3MTg3NV0sWyJoZW1lcmFsIiwwLjAxNDU5NTAzMTczODI4MTI1XSxbIsSgc2VndXJhbsODwqdhIiwwLjAxMjM5MDEzNjcxODc1XSxbIm1hYmxlIiwwLjAxMjM5MDEzNjcxODc1XV0sIjE5IjpbWyLEoFJvdyIsMC4wMjU5ODU3MTc3NzM0Mzc1XSxbIsSgSVIiLDAuMDE4NDE3MzU4Mzk4NDM3NV0sWyLEoFJhbmsiLDAuMDE2MjUwNjEwMzUxNTYyNV0sWyJGSUVEIiwwLjAxNTUxMDU1OTA4MjAzMTI1XSxbIlJvd0NvdW50IiwwLjAxNDM1MDg5MTExMzI4MTI1XV0sIjIwIjpbWyLEoElSIiwwLjA1NjI3NDQxNDA2MjVdLFsixKBlbXB0eSIsMC4wMjc4NDcyOTAwMzkwNjI1XSxbInN1bSIsMC4wMjU3NTY4MzU5Mzc1XSxbIkZJRUQiLDAuMDIyMzg0NjQzNTU0Njg3NV0sWyJ0ZW5zb3IiLDAuMDE4OTk3MTkyMzgyODEyNV1dLCIyMSI6W1sixKBSYW5rIiwwLjE5NjQxMTEzMjgxMjVdLFsixKByYW5rIiwwLjA5OTU0ODMzOTg0Mzc1XSxbIlRlbnNvciIsMC4wNDczOTM3OTg4MjgxMjVdLFsixKBJUiIsMC4wMjgwNzYxNzE4NzVdLFsicmFuayIsMC4wMTgxMjc0NDE0MDYyNV1dLCIyMiI6W1sixKByYW5rIiwwLjM3MjgwMjczNDM3NV0sWyLEoFJhbmsiLDAuMjk0OTIxODc1XSxbInJhbmsiLDAuMDg1MTQ0MDQyOTY4NzVdLFsiUmFuayIsMC4wNzY5NjUzMzIwMzEyNV0sWyLEoHJhbmtzIiwwLjAwODA0OTAxMTIzMDQ2ODc1XV0sIjIzIjpbWyLEoHJhbmsiLDAuNTAzOTA2MjVdLFsixKBSYW5rIiwwLjMwMTAyNTM5MDYyNV0sWyJyYW5rIiwwLjEwNTY1MTg1NTQ2ODc1XSxbIlJhbmsiLDAuMDc0OTUxMTcxODc1XSxbIsSgcmFua3MiLDAuMDA5OTc5MjQ4MDQ2ODc1XV0sIjI0IjpbWyLEoHJhbmsiLDAuNTQxOTkyMTg3NV0sWyLEoFJhbmsi",
+        "LDAuMzA4ODM3ODkwNjI1XSxbInJhbmsiLDAuMDY3ODcxMDkzNzVdLFsiUmFuayIsMC4wNjQ3NTgzMDA3ODEyNV0sWyLEoHJhbmtzIiwwLjAxMDA4NjA1OTU3MDMxMjVdXSwiMjUiOltbIsSgUmFuayIsMC40MDQ1NDEwMTU2MjVdLFsixKByYW5rIiwwLjM1NzE3NzczNDM3NV0sWyJyYW5rIiwwLjA5ODM4ODY3MTg3NV0sWyJSYW5rIiwwLjA5NjEzMDM3MTA5Mzc1XSxbIsSgcmFua3MiLDAuMDEwNzgwMzM0NDcyNjU2MjVdXSwiMjYiOltbIsSgcmFuayIsMC4zOTQ3NzUzOTA2MjVdLFsixKBSYW5rIiwwLjI3MzQzNzVdLFsicmFuayIsMC4xMjcxOTcyNjU2MjVdLFsiUmFuayIsMC4xMDA2NDY5NzI2NTYyNV0sWyLEoHFyIiwwLjAyNjQ1ODc0MDIzNDM3NV1dLCIyNyI6W1sixKBSYW5rIiwwLjIyOTk4MDQ2ODc1XSxbIsSgcmFuayIsMC4xNTY4NjAzNTE1NjI1XSxbInJhbmsiLDAuMTQxNzIzNjMyODEyNV0sWyJSYW5rIiwwLjExMjA2MDU0Njg3NV0sWyLEoHFyIiwwLjA1MTcyNzI5NDkyMTg3NV1dLCIyOCI6W1sibWF0cml4IiwwLjUyMTQ4NDM3NV0sWyJnZSIsMC4xNjE0OTkwMjM0Mzc1XSxbIkxvbmciLDAuMDI5NjQ3ODI3MTQ4NDM3NV0sWyJxciIsMC4wMjA2OTA5MTc5Njg3NV0sWyJkZXQiLDAuMDE1MjU4Nzg5MDYyNV1dLCIyOSI6W1sibWF0cml4IiwwLjM2NzE4NzVdLFsibGluYWxnIiwwLjI5OTU2MDU0Njg3NV0sWyJnZSIsMC4wNzk0MDY3MzgyODEyNV0sWyJ0ZW5zb3IiLDAuMDQxODM5NTk5NjA5Mzc1XSxbInJhbmsiLDAuMDEzNjg3MTMzNzg5MDYyNV1dLCJmaW5hbCI6W1sibWF0cml4IiwwLjQwODIwMzEyNV0sWyJsaW5hbGciLDAuMzcxODI2MTcxODc1XSxbInRlbnNvciIsMC4wNzMxODExNTIzNDM3NV0sWyJnZSIsMC4wNTMxMzExMDM1MTU2MjVdLFsicmFuayIsMC4wMTIyMjk5MTk0",
+        "MzM1OTM3NV1dfX0sInplcm8iOnsidG9rZW4iOiJsaW5hbGciLCJyYW5rcyI6eyItMSI6MTY5NzgsIjAiOjMzNzk5LCIxIjoxNzI2NCwiMiI6MjkxMDUsIjMiOjMxNTAxLCI0Ijo0MzE3NSwiNSI6NDA3MzYsIjYiOjQxOTY2LCI3IjozNjE5OCwiOCI6MzA5NjksIjkiOjI3Mjk5LCIxMCI6MjMwNzEsIjExIjoxMTYzMCwiMTIiOjY5MTIsIjEzIjoxMzE5NCwiMTQiOjE5NzI5LCIxNSI6NTYwMywiMTYiOjU1NDMsIjE3Ijo1NDExLCIxOCI6ODg4LCIxOSI6MzQ1LCIyMCI6MTYzOCwiMjEiOjM2NCwiMjIiOjU3LCIyMyI6NDksIjI0Ijo0NSwiMjUiOjY2LCIyNiI6MTAwLCIyNyI6NDcsIjI4IjoyNCwiMjkiOjEsImZpbmFsIjoxfSwidG9wcyI6eyItMSI6W1siLiIsMS4wXSxbIjxmaW1fbWlkZGxlPiIsMC4wXSxbIjx8ZW5kb2Z0ZXh0fD4iLDAuMF0sWyI8ZmltX3N1ZmZpeD4iLDAuMF0sWyI8ZmltX3ByZWZpeD4iLDAuMF1dLCIwIjpbWyLEoCIsMC4wNDc3NjAwMDk3NjU2MjVdLFsiQ29tcG9zZSIsMC4wMTM2ODcxMzM3ODkwNjI1XSxbIkRPIiwwLjAxMjgwMjEyNDAyMzQzNzVdLFsiVFJlc3VsdCIsMC4wMTA5NTU4MTA1NDY4NzVdLFsiaWdzYXciLDAuMDA5MDQ4NDYxOTE0MDYyNV1dLCIxIjpbWyJ1cGxpY2F0ZXMiLDAuMjgwNzYxNzE4NzVdLFsixKBndWFyYW50ZSIsMC4wMTQ5OTkzODk2NDg0Mzc1XSxbIk9TWCIsMC4wMTM5NzcwNTA3ODEyNV0sWyLDpcK7wrYiLDAuMDA4ODExOTUwNjgzNTkzNzVdLFsibW5vcHEiLDAuMDA4MzQ2NTU3NjE3MTg3NV1dLCIyIjpbWyJ1cGxpY2F0ZXMiLDAuMDY1NTUxNzU3ODEyNV0sWyJpZ3NhdyIsMC4wMzM1MDgzMDA3ODEyNV0sWyJ1bGF0b3J5IiwwLjAxMTg5NDIyNjA3NDIxODc1XSxbImNyaW1pbmF0b3IiLDAuMDEwNjIwMTE3MTg3NV0sWyLDhcSkw4TEp2Mi",
+        "LDAuMDEwNDE0MTIzNTM1MTU2MjVdXSwiMyI6W1siY3JpbWluYXRvciIsMC4wMjI1MDY3MTM4NjcxODc1XSxbImF2eCIsMC4wMDg1NDQ5MjE4NzVdLFsiw6fCusKqIiwwLjAwNzU5NTA2MjI1NTg1OTM3NV0sWyJpZ3NhdyIsMC4wMDY1NzI3MjMzODg2NzE4NzVdLFsiZXkiLDAuMDA2NDIzOTUwMTk1MzEyNV1dLCI0IjpbWyJpZ3NhdyIsMC4wMzU3MzYwODM5ODQzNzVdLFsibGljaXQiLDAuMDE5MTM0NTIxNDg0Mzc1XSxbIsOnwrrCqiIsMC4wMTE2OTU4NjE4MTY0MDYyNV0sWyJtYWJsZSIsMC4wMTA3MzQ1NTgxMDU0Njg3NV0sWyLEoGRpYW0iLDAuMDA4MjI0NDg3MzA0Njg3NV1dLCI1IjpbWyLDqcSpxKwiLDAuMDM3Njg5MjA4OTg0Mzc1XSxbIsSgZGlhbSIsMC4wMTUyMjgyNzE0ODQzNzVdLFsixKBleWVzIiwwLjAwOTgyNjY2MDE1NjI1XSxbIklYIiwwLjAwODY3NDYyMTU4MjAzMTI1XSxbIlNXSUciLDAuMDA4NTM3MjkyNDgwNDY4NzVdXSwiNiI6W1siw6nEqcSsIiwwLjA0MTI1OTc2NTYyNV0sWyJtdW5pdHkiLDAuMDI5OTM3NzQ0MTQwNjI1XSxbIlRUWSIsMC4wMTg3Mzc3OTI5Njg3NV0sWyJTV0lHIiwwLjAxMzM4OTU4NzQwMjM0Mzc1XSxbIsSgZGlhbSIsMC4wMTMwODQ0MTE2MjEwOTM3NV1dLCI3IjpbWyLDqcSpxKwiLDAuMDMzNTY5MzM1OTM3NV0sWyLEoHRvcnQiLDAuMDE4NTM5NDI4NzEwOTM3NV0sWyLEoGRpYW0iLDAuMDE0MjIxMTkxNDA2MjVdLFsiVFRZIiwwLjAxMjY0OTUzNjEzMjgxMjVdLFsibnVuZyIsMC4wMDgyNjI2MzQyNzczNDM3NV1dLCI4IjpbWyJpZml6IiwwLjAyNTg2MzY0NzQ2MDkzNzVdLFsiVFRZIiwwLjAxNDg0NjgwMTc1NzgxMjVdLFsiw6nEqcSsIiwwLjAxMDczNDU1ODEwNTQ2ODc1XSxbIsSgZGlhbSIsMC4wMTAwNDc5MTI1OTc2NTYyNV0sWyJtYWJsZSIs",
+        "MC4wMDk5NzE2MTg2NTIzNDM3NV1dLCI5IjpbWyJow4PCtiIsMC4wMjc0OTYzMzc4OTA2MjVdLFsiw4XEvWNpIiwwLjAyMTA4NzY0NjQ4NDM3NV0sWyJudW5nIiwwLjAxMTY0MjQ1NjA1NDY4NzVdLFsibWFibGUiLDAuMDEwNjA0ODU4Mzk4NDM3NV0sWyLEoGRpYW0iLDAuMDEwMTE2NTc3MTQ4NDM3NV1dLCIxMCI6W1sixKBkaWFtIiwwLjAzNzUwNjEwMzUxNTYyNV0sWyJtYWJsZSIsMC4wMzE1ODU2OTMzNTkzNzVdLFsic3RpdGlhbCIsMC4wMTE5OTM0MDgyMDMxMjVdLFsiUFJPUEVSIiwwLjAxMTM1MjUzOTA2MjVdLFsibnVuZyIsMC4wMTEwMDE1ODY5MTQwNjI1XV0sIjExIjpbWyJtYWJsZSIsMC4xNDgzMTU0Mjk2ODc1XSxbImFpbGFibGUiLDAuMDMzODc0NTExNzE4NzVdLFsiU2FuZCIsMC4wMTY3Njk0MDkxNzk2ODc1XSxbImlmaXoiLDAuMDE1MDI5OTA3MjI2NTYyNV0sWyJlbnN1cmUiLDAuMDEyOTU0NzExOTE0MDYyNV1dLCIxMiI6W1sibWFibGUiLDAuMDY0NDUzMTI1XSxbIsSgZGlhbSIsMC4wMzM3MjE5MjM4MjgxMjVdLFsiaWZpeiIsMC4wMTU5MzAxNzU3ODEyNV0sWyLEoGVtcHR5IiwwLjAwOTg4NzY5NTMxMjVdLFsiZGVzdHJ1Y3QiLDAuMDA4ODY1MzU2NDQ1MzEyNV1dLCIxMyI6W1sixKBkaWFtIiwwLjEwMzQ1NDU4OTg0Mzc1XSxbInN0aXRpYWwiLDAuMDI4NzE3MDQxMDE1NjI1XSxbIm1hYmxlIiwwLjAyODcxNzA0MTAxNTYyNV0sWyJkeWxkIiwwLjAxOTQzOTY5NzI2NTYyNV0sWyJpc3BpZWwiLDAuMDE0Nzg1NzY2NjAxNTYyNV1dLCIxNCI6W1sic3RpdGlhbCIsMC4wNDQyMTk5NzA3MDMxMjVdLFsixKBkaWFtIiwwLjAzNDcyOTAwMzkwNjI1XSxbIsSgc2FmZSIsMC4wMjYyMTQ1OTk2MDkzNzVdLFsiaWZpeiIsMC4wMTQwMzA0NTY1NDI5Njg3NV0sWyJTYWZlIiwwLjAxMTQ1",
+        "MTcyMTE5MTQwNjI1XV0sIjE1IjpbWyLEoGRpYW0iLDAuMDIxNTkxMTg2NTIzNDM3NV0sWyJsaWNrZW4iLDAuMDA5NDY4MDc4NjEzMjgxMjVdLFsixKBzaWx2ZXIiLDAuMDA5MjE2MzA4NTkzNzVdLFsiaWZlYyIsMC4wMDkwMDI2ODU1NDY4NzVdLFsiaWZpeiIsMC4wMDg2NTkzNjI3OTI5Njg3NV1dLCIxNiI6W1siaWZpeiIsMC4wMzAwNzUwNzMyNDIxODc1XSxbIlBST1BFUiIsMC4wMjI1MjE5NzI2NTYyNV0sWyLEoHRvcnQiLDAuMDE4MjQ5NTExNzE4NzVdLFsiaXNwaWVsIiwwLjAxNzgyMjI2NTYyNV0sWyJSRVNTRUQiLDAuMDE1MzY1NjAwNTg1OTM3NV1dLCIxNyI6W1siaWZpeiIsMC4wMTg1NTQ2ODc1XSxbIsSgZGlhbSIsMC4wMTMyNTk4ODc2OTUzMTI1XSxbIsSgcGVycyIsMC4wMTE3OTUwNDM5NDUzMTI1XSxbImlzcGllbCIsMC4wMTE3MDM0OTEyMTA5Mzc1XSxbIsSgbnoiLDAuMDEwNjk2NDExMTMyODEyNV1dLCIxOCI6W1siaGVtZXJhbCIsMC4wMTczMzM5ODQzNzVdLFsiXCI/XCIsIiwwLjAxNzE5NjY1NTI3MzQzNzVdLFsixKBzZWd1cmFuw4PCp2EiLDAuMDE1MTc0ODY1NzIyNjU2MjVdLFsiXCI+e3skIiwwLjAxNDcwOTQ3MjY1NjI1XSxbIm1hYmxlIiwwLjAxMjc3OTIzNTgzOTg0Mzc1XV0sIjE5IjpbWyLEoElSIiwwLjAxNzg2ODA0MTk5MjE4NzVdLFsiaG9sbyIsMC4wMTIyODMzMjUxOTUzMTI1XSxbInplcm9zIiwwLjAxMjA5MjU5MDMzMjAzMTI1XSxbIsSgemVyb3MiLDAuMDExNzE4NzVdLFsixKBEaSIsMC4wMTE2MjcxOTcyNjU2MjVdXSwiMjAiOltbIsSgSVIiLDAuMDU5MjM0NjE5MTQwNjI1XSxbInN1bSIsMC4wMjUwODU0NDkyMTg3NV0sWyLEoGVtcHR5IiwwLjAyNDUwNTYxNTIzNDM3NV0sWyJtb2R1bGVzIiwwLjAxODc4MzU2OTMzNTkzNzVdLFsibWF4IiwwLjAxNzUx",
+        "NzA4OTg0Mzc1XV0sIjIxIjpbWyLEoFJhbmsiLDAuMTM3MDg0OTYwOTM3NV0sWyLEoHJhbmsiLDAuMDUyMDMyNDcwNzAzMTI1XSxbIsSgSVIiLDAuMDQ1NTYyNzQ0MTQwNjI1XSxbIlRlbnNvciIsMC4wNDI0ODA0Njg3NV0sWyJ0ZW5zb3IiLDAuMDIxNTMwMTUxMzY3MTg3NV1dLCIyMiI6W1sixKBSYW5rIiwwLjMyMjAyMTQ4NDM3NV0sWyLEoHJhbmsiLDAuMzE3MTM4NjcxODc1XSxbInJhbmsiLDAuMDg0NjU1NzYxNzE4NzVdLFsiUmFuayIsMC4wNzc2OTc3NTM5MDYyNV0sWyLEoHJhbmtzIiwwLjAwODY1MTczMzM5ODQzNzVdXSwiMjMiOltbIsSgcmFuayIsMC40Nzk5ODA0Njg3NV0sWyLEoFJhbmsiLDAuMzA5ODE0NDUzMTI1XSxbInJhbmsiLDAuMTE1NzgzNjkxNDA2MjVdLFsiUmFuayIsMC4wNzgzNjkxNDA2MjVdLFsixKByYW5rcyIsMC4wMTExMTYwMjc4MzIwMzEyNV1dLCIyNCI6W1sixKByYW5rIiwwLjQ4MjQyMTg3NV0sWyLEoFJhbmsiLDAuMzI2NDE2MDE1NjI1XSxbInJhbmsiLDAuMDkwNjM3MjA3MDMxMjVdLFsiUmFuayIsMC4wNzYzNTQ5ODA0Njg3NV0sWyLEoHJhbmtzIiwwLjAxNjc2OTQwOTE3OTY4NzVdXSwiMjUiOltbIsSgUmFuayIsMC40MjExNDI1NzgxMjVdLFsixKByYW5rIiwwLjMwODEwNTQ2ODc1XSxbInJhbmsiLDAuMTIxNjQzMDY2NDA2MjVdLFsiUmFuayIsMC4xMTI0ODc3OTI5Njg3NV0sWyLEoHJhbmtzIiwwLjAxMzU0MjE3NTI5Mjk2ODc1XV0sIjI2IjpbWyLEoHJhbmsiLDAuMzY3OTE5OTIxODc1XSxbIsSgUmFuayIsMC4yNzc4MzIwMzEyNV0sWyJyYW5rIiwwLjE1ODMyNTE5NTMxMjVdLFsiUmFuayIsMC4xMjIzMTQ0NTMxMjVdLFsixKBxciIsMC4wMTU0MjY2MzU3NDIxODc1XV0sIjI3IjpbWyLEoFJhbmsiLDAuMjQzNTMwMjczNDM3NV0sWyJyYW5rIiwwLjE4",
+        "ODIzMjQyMTg3NV0sWyLEoHJhbmsiLDAuMTU3MjI2NTYyNV0sWyJSYW5rIiwwLjEyNjM0Mjc3MzQzNzVdLFsixKBxciIsMC4wMzczNTM1MTU2MjVdXSwiMjgiOltbIm1hdHJpeCIsMC4zMTE3Njc1NzgxMjVdLFsiZ2UiLDAuMTYyOTYzODY3MTg3NV0sWyJ0ZW5zb3IiLDAuMDQ0NTU1NjY0MDYyNV0sWyJMb25nIiwwLjAzOTk0NzUwOTc2NTYyNV0sWyJxciIsMC4wMzg2OTYyODkwNjI1XV0sIjI5IjpbWyJsaW5hbGciLDAuMzAyMDAxOTUzMTI1XSxbIm1hdHJpeCIsMC4yMTc1MjkyOTY4NzVdLFsidGVuc29yIiwwLjExMjg1NDAwMzkwNjI1XSxbImdlIiwwLjA4MjU4MDU2NjQwNjI1XSxbInJhbmsiLDAuMDI1Mzc1MzY2MjEwOTM3NV1dLCJmaW5hbCI6W1sibGluYWxnIiwwLjM4NzY5NTMxMjVdLFsidGVuc29yIiwwLjIzMTQ0NTMxMjVdLFsibWF0cml4IiwwLjE5NDgyNDIxODc1XSxbImdlIiwwLjA0Nzc2MDAwOTc2NTYyNV0sWyJyYW5rIiwwLjAyNTE2MTc0MzE2NDA2MjVdXX19LCJnYXVzc2lhbiI6eyJ0b2tlbiI6InRlbnNvciIsInJhbmtzIjp7Ii0xIjoxNDI0NiwiMCI6MjM5ODEsIjEiOjIzMjQ3LCIyIjo5Nzc3LCIzIjoxNDA3MywiNCI6MTc3NDQsIjUiOjU3NjQsIjYiOjI0NDIsIjciOjQ4MzEsIjgiOjM2NTcsIjkiOjQyMjcsIjEwIjo1MDc1LCIxMSI6MzA4NSwiMTIiOjgyMzksIjEzIjoxMTA5MiwiMTQiOjczMzksIjE1Ijo4MDQ5LCIxNiI6ODY1OCwiMTciOjQ4NDUsIjE4IjoyOTgsIjE5IjoyMDksIjIwIjozOCwiMjEiOjI2LCIyMiI6MTYsIjIzIjoxOCwiMjQiOjEzLCIyNSI6MTUsIjI2Ijo3LCIyNyI6NywiMjgiOjEsIjI5IjoyLCJmaW5hbCI6MX0sInRvcHMiOnsiLTEiOltbIi4iLDEuMF0sWyI8ZmltX21pZGRsZT4iLDAuMF0sWyI8fGVuZG9mdGV4dHw+IiwwLjBdLFsiPGZpbV9z",
+        "dWZmaXg+IiwwLjBdLFsiPGZpbV9wcmVmaXg+IiwwLjBdXSwiMCI6W1sixKAiLDAuMDQ3NzYwMDA5NzY1NjI1XSxbIkNvbXBvc2UiLDAuMDEzNjg3MTMzNzg5MDYyNV0sWyJETyIsMC4wMTI4MDIxMjQwMjM0Mzc1XSxbIlRSZXN1bHQiLDAuMDEwOTU1ODEwNTQ2ODc1XSxbImlnc2F3IiwwLjAwOTA0ODQ2MTkxNDA2MjVdXSwiMSI6W1sidXBsaWNhdGVzIiwwLjI4MjIyNjU2MjVdLFsixKBndWFyYW50ZSIsMC4wMTQ5NjEyNDI2NzU3ODEyNV0sWyJPU1giLDAuMDEzOTQ2NTMzMjAzMTI1XSxbIsOlwrvCtiIsMC4wMDg3OTY2OTE4OTQ1MzEyNV0sWyJtbm9wcSIsMC4wMDgzMjM2Njk0MzM1OTM3NV1dLCIyIjpbWyJ1cGxpY2F0ZXMiLDAuMDY0Njk3MjY1NjI1XSxbImlnc2F3IiwwLjAzMzU2OTMzNTkzNzVdLFsidWxhdG9yeSIsMC4wMTE4MzMxOTA5MTc5Njg3NV0sWyJjcmltaW5hdG9yIiwwLjAxMDQ4Mjc4ODA4NTkzNzVdLFsiw4XEpMOExKdjIiwwLjAxMDM2MDcxNzc3MzQzNzVdXSwiMyI6W1siY3JpbWluYXRvciIsMC4wMjIzNjkzODQ3NjU2MjVdLFsiYXZ4IiwwLjAwODU5MDY5ODI0MjE4NzVdLFsiw6fCusKqIiwwLjAwNzU3OTgwMzQ2Njc5Njg3NV0sWyJpZ3NhdyIsMC4wMDY1NTc0NjQ1OTk2MDkzNzVdLFsiZXkiLDAuMDA2MzgxOTg4NTI1MzkwNjI1XV0sIjQiOltbImlnc2F3IiwwLjAzNTc5NzExOTE0MDYyNV0sWyJsaWNpdCIsMC4wMTg3MjI1MzQxNzk2ODc1XSxbIsOnwrrCqiIsMC4wMTE3MTg3NV0sWyJtYWJsZSIsMC4wMTA0MjE3NTI5Mjk2ODc1XSxbIsSgZGlhbSIsMC4wMDgyMDkyMjg1MTU2MjVdXSwiNSI6W1siw6nEqcSsIiwwLjAzNzY1ODY5MTQwNjI1XSxbIsSgZGlhbSIsMC4wMTUzMzUwODMwMDc4MTI1XSxbIsSgZXllcyIsMC4wMDk5NzkyNDgwNDY4NzVdLFsiSVgiLDAuMDA4",
+        "NjY2OTkyMTg3NV0sWyJTV0lHIiwwLjAwODI3MDI2MzY3MTg3NV1dLCI2IjpbWyLDqcSpxKwiLDAuMDQwNDY2MzA4NTkzNzVdLFsibXVuaXR5IiwwLjAyODQ3MjkwMDM5MDYyNV0sWyJUVFkiLDAuMDE4ODE0MDg2OTE0MDYyNV0sWyLEoGRpYW0iLDAuMDEzNjY0MjQ1NjA1NDY4NzVdLFsiU1dJRyIsMC4wMTI5MzE4MjM3MzA0Njg3NV1dLCI3IjpbWyLDqcSpxKwiLDAuMDMyNDQwMTg1NTQ2ODc1XSxbIsSgdG9ydCIsMC4wMjEyNzA3NTE5NTMxMjVdLFsixKBkaWFtIiwwLjAxNzkxMzgxODM1OTM3NV0sWyJUVFkiLDAuMDEzMjA2NDgxOTMzNTkzNzVdLFsibnVuZyIsMC4wMDczMjA0MDQwNTI3MzQzNzVdXSwiOCI6W1siaWZpeiIsMC4wMjUzNDQ4NDg2MzI4MTI1XSxbIlRUWSIsMC4wMTU2MTczNzA2MDU0Njg3NV0sWyLEoGRpYW0iLDAuMDEyMjYwNDM3MDExNzE4NzVdLFsiw6nEqcSsIiwwLjAxMDUyODU2NDQ1MzEyNV0sWyJtYWJsZSIsMC4wMDk4ODc2OTUzMTI1XV0sIjkiOltbImjDg8K2IiwwLjAyODE5ODI0MjE4NzVdLFsiw4XEvWNpIiwwLjAxNzM3OTc2MDc0MjE4NzVdLFsixKBkaWFtIiwwLjAxMjkxNjU2NDk0MTQwNjI1XSxbIm51bmciLDAuMDEwMzc1OTc2NTYyNV0sWyJtYWJsZSIsMC4wMDk5NzkyNDgwNDY4NzVdXSwiMTAiOltbIsSgZGlhbSIsMC4wNDI3NTUxMjY5NTMxMjVdLFsibWFibGUiLDAuMDI2NTUwMjkyOTY4NzVdLFsic3RpdGlhbCIsMC4wMTM5OTIzMDk1NzAzMTI1XSxbIsSgdG9ydCIsMC4wMTE1OTY2Nzk2ODc1XSxbImFpbGFibGUiLDAuMDExMjQ1NzI3NTM5MDYyNV1dLCIxMSI6W1sibWFibGUiLDAuMTcxMTQyNTc4MTI1XSxbImFpbGFibGUiLDAuMDM5NzAzMzY5MTQwNjI1XSxbIlNhbmQiLDAuMDE1NzkyODQ2Njc5Njg3NV0sWyJlbnN1cmUiLDAuMDE0ODM5MTcyMzYz",
+        "MjgxMjVdLFsiaWZpeiIsMC4wMTI4OTM2NzY3NTc4MTI1XV0sIjEyIjpbWyJtYWJsZSIsMC4wNzU4MDU2NjQwNjI1XSxbIsSgZGlhbSIsMC4wMzQxNzk2ODc1XSxbImlmaXoiLDAuMDEyNTczMjQyMTg3NV0sWyJkZXN0cnVjdCIsMC4wMDk2MzU5MjUyOTI5Njg3NV0sWyLEoGVtcHR5IiwwLjAwOTA1NjA5MTMwODU5Mzc1XV0sIjEzIjpbWyLEoGRpYW0iLDAuMTExNzU1MzcxMDkzNzVdLFsibWFibGUiLDAuMDMyNTMxNzM4MjgxMjVdLFsic3RpdGlhbCIsMC4wMjczODk1MjYzNjcxODc1XSxbImR5bGQiLDAuMDE3ODIyMjY1NjI1XSxbImlzcGllbCIsMC4wMTc0MTAyNzgzMjAzMTI1XV0sIjE0IjpbWyLEoGRpYW0iLDAuMDQwOTI0MDcyMjY1NjI1XSxbInN0aXRpYWwiLDAuMDMwMTY2NjI1OTc2NTYyNV0sWyLEoHNhZmUiLDAuMDI0MjQ2MjE1ODIwMzEyNV0sWyJpZml6IiwwLjAxMTgxNzkzMjEyODkwNjI1XSxbIlNhZmUiLDAuMDExNzE4NzVdXSwiMTUiOltbIsSgZGlhbSIsMC4wMjA5OTYwOTM3NV0sWyJpZmVjIiwwLjAxMzQ5NjM5ODkyNTc4MTI1XSxbIsSgc2lsdmVyIiwwLjAxMDgwMzIyMjY1NjI1XSxbImxpY2tlbiIsMC4wMDgwMjYxMjMwNDY4NzVdLFsiaWZpeiIsMC4wMDc2NTk5MTIxMDkzNzVdXSwiMTYiOltbImlmaXoiLDAuMDMxMzQxNTUyNzM0Mzc1XSxbImlzcGllbCIsMC4wMjU1ODg5ODkyNTc4MTI1XSxbIsSgdG9ydCIsMC4wMTc0NDA3OTU4OTg0Mzc1XSxbIlBST1BFUiIsMC4wMTY1MjUyNjg1NTQ2ODc1XSxbIsSgZGlhbSIsMC4wMTMzODE5NTgwMDc4MTI1XV0sIjE3IjpbWyLEoGRpYW0iLDAuMDIyMDAzMTczODI4MTI1XSxbImlmaXoiLDAuMDIyMDAzMTczODI4MTI1XSxbImlzcGllbCIsMC4wMTQzMjAzNzM1MzUxNTYyNV0sWyJzaWJsZSIsMC4wMTIzNDQzNjAzNTE1NjI1XSxb",
+        "ImhlbWVyYWwiLDAuMDA4ODE5NTgwMDc4MTI1XV0sIjE4IjpbWyJcIj9cIiwiLDAuMDE5MjU2NTkxNzk2ODc1XSxbIlwiPnt7JCIsMC4wMTcyNTc2OTA0Mjk2ODc1XSxbIsSgc2VndXJhbsODwqdhIiwwLjAxNjA5ODAyMjQ2MDkzNzVdLFsibm9ubnVsbCIsMC4wMTQ3NzA1MDc4MTI1XSxbImhlbWVyYWwiLDAuMDE0MTk4MzAzMjIyNjU2MjVdXSwiMTkiOltbInNweSIsMC4wMzAzMTkyMTM4NjcxODc1XSxbIsSgUmFuayIsMC4wMTk3Mjk2MTQyNTc4MTI1XSxbIsSgcmFuayIsMC4wMTMxNDU0NDY3NzczNDM3NV0sWyJhbnkiLDAuMDEyNjQxOTA2NzM4MjgxMjVdLFsiemVyb3MiLDAuMDExNjg4MjMyNDIxODc1XV0sIjIwIjpbWyJtb2R1bGVzIiwwLjA2MDMwMjczNDM3NV0sWyJGSUVEIiwwLjAyODcwMTc4MjIyNjU2MjVdLFsiYW55IiwwLjAyNTEzMTIyNTU4NTkzNzVdLFsibXB0eSIsMC4wMjAzNTUyMjQ2MDkzNzVdLFsiVGVuc29yIiwwLjAxOTI3MTg1MDU4NTkzNzVdXSwiMjEiOltbIsSgUmFuayIsMC4wOTE2NzQ4MDQ2ODc1XSxbIsSgcmFuayIsMC4wNzUzNzg0MTc5Njg3NV0sWyJUZW5zb3IiLDAuMDY2MDQwMDM5MDYyNV0sWyJSYW5rIiwwLjAyMjY0NDA0Mjk2ODc1XSxbInN1bSIsMC4wMjI2NDQwNDI5Njg3NV1dLCIyMiI6W1sixKByYW5rIiwwLjM2MDU5NTcwMzEyNV0sWyLEoFJhbmsiLDAuMjE3MDQxMDE1NjI1XSxbIlJhbmsiLDAuMTUwMjY4NTU0Njg3NV0sWyJyYW5rIiwwLjA5ODU3MTc3NzM0Mzc1XSxbIlRlbnNvciIsMC4wMTMxMzAxODc5ODgyODEyNV1dLCIyMyI6W1sixKByYW5rIiwwLjQ4NjMyODEyNV0sWyLEoFJhbmsiLDAuMjAyNzU4Nzg5MDYyNV0sWyJSYW5rIiwwLjE4MTc2MjY5NTMxMjVdLFsicmFuayIsMC4xMTM3MDg0OTYwOTM3NV0sWyLEoHJhbmtzIiwwLjAwNjgyODMw",
+        "ODEwNTQ2ODc1XV0sIjI0IjpbWyLEoHJhbmsiLDAuNDI5MTk5MjE4NzVdLFsixKBSYW5rIiwwLjM0NDk3MDcwMzEyNV0sWyJSYW5rIiwwLjEzNzIwNzAzMTI1XSxbInJhbmsiLDAuMDc0NTg0OTYwOTM3NV0sWyLEoHJhbmtzIiwwLjAwMzM1NTAyNjI0NTExNzE4NzVdXSwiMjUiOltbIsSgUmFuayIsMC40NDU1NTY2NDA2MjVdLFsixKByYW5rIiwwLjI2NjExMzI4MTI1XSxbInJhbmsiLDAuMTM4MDYxNTIzNDM3NV0sWyJSYW5rIiwwLjEyNDc1NTg1OTM3NV0sWyJubiIsMC4wMDE5ODU1NDk5MjY3NTc4MTI1XV0sIjI2IjpbWyLEoFJhbmsiLDAuMzM5ODQzNzVdLFsixKByYW5rIiwwLjI0ODY1NzIyNjU2MjVdLFsicmFuayIsMC4xOTM3MjU1ODU5Mzc1XSxbIlJhbmsiLDAuMTcwODk4NDM3NV0sWyJzdW0iLDAuMDA2Mjc1MTc3MDAxOTUzMTI1XV0sIjI3IjpbWyLEoFJhbmsiLDAuMzM1NjkzMzU5Mzc1XSxbIlJhbmsiLDAuMTg1MzAyNzM0Mzc1XSxbInJhbmsiLDAuMTc4MjIyNjU2MjVdLFsixKByYW5rIiwwLjExNTk2Njc5Njg3NV0sWyJnZSIsMC4wMzA3MzEyMDExNzE4NzVdXSwiMjgiOltbInRlbnNvciIsMC4wOTgyNjY2MDE1NjI1XSxbInJhbmsiLDAuMDk3NDczMTQ0NTMxMjVdLFsiZ2UiLDAuMDgyMDkyMjg1MTU2MjVdLFsixKBSYW5rIiwwLjA1ODIyNzUzOTA2MjVdLFsiUmFuayIsMC4wNDc4ODIwODAwNzgxMjVdXSwiMjkiOltbImxpbmFsZyIsMC4yNzE5NzI2NTYyNV0sWyJ0ZW5zb3IiLDAuMTc1NjU5MTc5Njg3NV0sWyJyYW5rIiwwLjA5NjI1MjQ0MTQwNjI1XSxbIm1hdHJpeCIsMC4wMzIyNTcwODAwNzgxMjVdLFsibm9uemVybyIsMC4wMjkxMjkwMjgzMjAzMTI1XV0sImZpbmFsIjpbWyJ0ZW5zb3IiLDAuMzU2MjAxMTcxODc1XSxbImxpbmFsZyIsMC4yNDg2NTcyMjY1NjI1XSxbInJh",
+        "bmsiLDAuMTM4NDI3NzM0Mzc1XSxbInN2ZCIsMC4wMjg1NDkxOTQzMzU5Mzc1XSxbIm1hdHJpeCIsMC4wMTkzMTc2MjY5NTMxMjVdXX19fQ==",
+      ];
+
+      function decodeEmbeddedData() {
+        const b64 = EMBEDDED_B64_CHUNKS.join("");
+        const bin = atob(b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const jsonText = new TextDecoder("utf-8").decode(bytes);
+        return JSON.parse(jsonText);
+      }
+
+      const EMBEDDED_DATA = decodeEmbeddedData();
+
+      const $ = (id) => document.getElementById(id);
+
+      function setError(text) {
+        const box = $("errorBox");
+        box.style.display = "block";
+        box.textContent = text;
+      }
+
+      function safeNumber(x) {
+        if (typeof x === "number" && Number.isFinite(x)) return x;
+        if (typeof x === "string") {
+          const n = Number(x);
+          if (Number.isFinite(n)) return n;
+        }
+        return null;
+      }
+
+      function getGroundTruth(rec) {
+        if (Array.isArray(rec?.ground_truth) && rec.ground_truth.length > 0) return String(rec.ground_truth[0]);
+        if (typeof rec?.ground_truth === "string" && rec.ground_truth.trim()) return rec.ground_truth.trim();
+        if (typeof rec?.ground_truth_0 === "string" && rec.ground_truth_0.trim()) return rec.ground_truth_0.trim();
+        return "(missing)";
+      }
+
+      function getModeData(container, mode) {
+        if (mode === "original") return container.original;
+        if (mode === "zero") return container.zero;
+        if (mode === "gaussian") return container.gaussian;
+        return null;
+      }
+
+      function collectAllRanks(container, includeFinal) {
+        const out = [];
+        for (const mode of ["original", "zero", "gaussian"]) {
+          const md = getModeData(container, mode);
+          if (!md) continue;
+          const rb = md.ranks || {};
+          for (const [k, v] of Object.entries(rb)) {
+            if (!includeFinal && k === "final") continue;
+            const n = safeNumber(v);
+            if (n !== null) out.push(n);
+          }
+        }
+        return out;
+      }
+
+      function sortedLayerNums(rankObj) {
+        const nums = [];
+        for (const k of Object.keys(rankObj || {})) {
+          if (k === "final") continue;
+          const n = safeNumber(k);
+          if (n === null) continue;
+          nums.push(n);
+        }
+        nums.sort((a, b) => a - b);
+        return nums;
+      }
+
+      function fmtProb(p) {
+        if (typeof p !== "number" || !Number.isFinite(p)) return String(p);
+        if (p === 0) return "0";
+        if (p >= 0.01) return p.toFixed(4);
+        if (p >= 1e-6) return p.toExponential(3);
+        return p.toExponential(2);
+      }
+
+      function normalizeTok(s) {
+        if (s == null) return "";
+        return String(s).trim();
+      }
+
+      function hasTokenInTop(topPairs, tokenStr) {
+        if (!Array.isArray(topPairs)) return false;
+        const target = normalizeTok(tokenStr);
+        if (!target) return false;
+        for (const pair of topPairs) {
+          if (!Array.isArray(pair) || pair.length < 1) continue;
+          if (normalizeTok(pair[0]) === target) return true;
+        }
+        return false;
+      }
+
+      function drawChart(container, mode, opts) {
+        const svg = $("chartRoot");
+        svg.replaceChildren();
+
+        const md = getModeData(container, mode);
+        if (!md) {
+          setError(`找不到 mode=${mode} 的数据（JSON 中可能没有保存 ablation_results）。`);
+          return;
+        }
+
+        const ranks = md.ranks || {};
+        const layers = sortedLayerNums(ranks);
+        if (layers.length === 0) {
+          setError("rank_by_layer 为空，无法绘图。");
+          return;
+        }
+
+        const includeFinal = Boolean(opts.includeFinal);
+        const showLog = Boolean(opts.logScale);
+
+        const minLayer = Math.min(...layers);
+        const maxLayer = Math.max(...layers);
+        const finalX = maxLayer + 1;
+
+        const xs = [];
+        const ys = [];
+        for (const layer of layers) {
+          xs.push(layer);
+          const r = safeNumber(ranks[String(layer)]);
+          ys.push(r ?? NaN);
+        }
+        if (includeFinal) {
+          xs.push(finalX);
+          const r = safeNumber(ranks["final"]);
+          ys.push(r ?? NaN);
+        }
+
+        const allRanks = collectAllRanks(container, includeFinal).filter((x) => x > 0);
+        const yMin = 1;
+        const yMax = allRanks.length ? Math.max(...allRanks) : 1;
+
+        const W = 1200;
+        const H = 720;
+        const pad = { l: 68, r: 18, t: 18, b: 58 };
+        const plotW = W - pad.l - pad.r;
+        const plotH = H - pad.t - pad.b;
+
+        const xMin = minLayer;
+        const xMax = includeFinal ? finalX : maxLayer;
+
+        function xScale(x) {
+          if (xMax === xMin) return pad.l + plotW / 2;
+          return pad.l + ((x - xMin) / (xMax - xMin)) * plotW;
+        }
+
+        function yTransform(rank) {
+          const v = Math.max(yMin, rank);
+          return showLog ? Math.log10(v) : v;
+        }
+
+        const yMinT = yTransform(yMin);
+        const yMaxT = yTransform(yMax);
+
+        function yScale(rank) {
+          const v = yTransform(rank);
+          if (yMaxT === yMinT) return pad.t + plotH / 2;
+          const t = (v - yMinT) / (yMaxT - yMinT);
+          return pad.t + (1 - t) * plotH;
+        }
+
+        function el(name, attrs = {}, children = []) {
+          const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+          for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v));
+          for (const c of children) node.appendChild(c);
+          return node;
+        }
+
+        const gridColor = "rgba(140, 165, 210, 0.18)";
+        const axisColor = "rgba(140, 165, 210, 0.35)";
+        const lineColor = mode === "original" ? "#7aa2ff" : mode === "zero" ? "#ffa06a" : "#54d6a8";
+
+        // Background grid (Y ticks)
+        const yTicks = [];
+        if (showLog) {
+          const maxPow = Math.ceil(Math.log10(yMax));
+          for (let p = 0; p <= maxPow; p++) yTicks.push(Math.pow(10, p));
+        } else {
+          const targetTicks = 6;
+          const rawStep = (yMax - yMin) / targetTicks;
+          const mag = Math.pow(10, Math.floor(Math.log10(rawStep || 1)));
+          const step = Math.max(1, Math.round(rawStep / mag) * mag);
+          for (let v = yMin; v <= yMax + 0.0001; v += step) yTicks.push(v);
+        }
+
+        for (const v of yTicks) {
+          const y = yScale(v);
+          svg.appendChild(el("line", { x1: pad.l, y1: y, x2: pad.l + plotW, y2: y, stroke: gridColor }));
+          const label = showLog ? `1e${Math.round(Math.log10(v))}` : String(Math.round(v));
+          svg.appendChild(
+            el("text", { x: pad.l - 10, y: y + 4, "text-anchor": "end", fill: "rgba(140,165,210,0.9)", "font-size": 12 }, [
+              document.createTextNode(label),
+            ])
+          );
+        }
+
+        // X axis line and ticks
+        svg.appendChild(el("line", { x1: pad.l, y1: pad.t + plotH, x2: pad.l + plotW, y2: pad.t + plotH, stroke: axisColor }));
+        svg.appendChild(el("line", { x1: pad.l, y1: pad.t, x2: pad.l, y2: pad.t + plotH, stroke: axisColor }));
+
+        const xTickStep = Math.max(1, Math.floor((xMax - xMin) / 10));
+        for (let x = xMin; x <= xMax; x += xTickStep) {
+          const px = xScale(x);
+          svg.appendChild(el("line", { x1: px, y1: pad.t + plotH, x2: px, y2: pad.t + plotH + 6, stroke: axisColor }));
+          svg.appendChild(
+            el("text", { x: px, y: pad.t + plotH + 22, "text-anchor": "middle", fill: "rgba(140,165,210,0.9)", "font-size": 12 }, [
+              document.createTextNode(String(x)),
+            ])
+          );
+        }
+        if (includeFinal) {
+          const px = xScale(finalX);
+          svg.appendChild(el("line", { x1: px, y1: pad.t + plotH, x2: px, y2: pad.t + plotH + 6, stroke: axisColor }));
+          svg.appendChild(
+            el("text", { x: px, y: pad.t + plotH + 22, "text-anchor": "middle", fill: "rgba(140,165,210,0.9)", "font-size": 12 }, [
+              document.createTextNode("final"),
+            ])
+          );
+        }
+
+        // Axis titles
+        svg.appendChild(
+          el("text", { x: pad.l + plotW / 2, y: H - 18, "text-anchor": "middle", fill: "rgba(140,165,210,0.95)", "font-size": 13 }, [
+            document.createTextNode("层数（-1 为 embedding，final 为最终 logits）"),
+          ])
+        );
+        svg.appendChild(
+          el("text", { x: 18, y: pad.t + plotH / 2, transform: `rotate(-90 18 ${pad.t + plotH / 2})`, "text-anchor": "middle", fill: "rgba(140,165,210,0.95)", "font-size": 13 }, [
+            document.createTextNode(showLog ? "log10(rank)" : "rank（越小越好）"),
+          ])
+        );
+
+        // Polyline points
+        const pts = [];
+        for (let i = 0; i < xs.length; i++) {
+          const r = ys[i];
+          if (!Number.isFinite(r) || r <= 0) continue;
+          pts.push([xScale(xs[i]), yScale(r), xs[i], r]);
+        }
+
+        if (pts.length >= 2) {
+          svg.appendChild(
+            el("polyline", {
+              fill: "none",
+              stroke: lineColor,
+              "stroke-width": 2.2,
+              points: pts.map((p) => `${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(" "),
+            })
+          );
+        }
+
+        // Points with hover tooltip (optimize: update content on enter, only position on move)
+        const tooltip = $("tooltip");
+        const ttLayer = $("ttLayer");
+        const ttRank = $("ttRank");
+        const ttBest = $("ttBest");
+        const ttTable = $("ttTable");
+        let tooltipSize = { w: 360, h: 220 };
+        let rafMove = 0;
+        let lastMove = { x: 0, y: 0 };
+        let lastHoverKey = null;
+
+        function hideTooltip() {
+          tooltip.classList.remove("visible");
+          tooltip.setAttribute("aria-hidden", "true");
+          lastHoverKey = null;
+        }
+
+        function updateTooltipContent(layerLabel, rank, topPairs) {
+          const hoverKey = `${mode}:${layerLabel}`;
+          if (hoverKey === lastHoverKey) return;
+          lastHoverKey = hoverKey;
+
+          ttLayer.textContent = `Layer ${layerLabel}`;
+          ttRank.textContent = `rank: ${Math.round(rank)}`;
+          ttBest.textContent = "";
+
+          ttTable.replaceChildren();
+          const top = Array.isArray(topPairs) ? topPairs : null;
+          if (!top) {
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 3;
+            td.style.color = "var(--muted)";
+            td.textContent = "top_tokens 缺失";
+            tr.appendChild(td);
+            ttTable.appendChild(tr);
+          } else {
+            top.slice(0, 5).forEach((t, i) => {
+              const tr = document.createElement("tr");
+              const c1 = document.createElement("td");
+              c1.textContent = `#${i + 1}`;
+              const c2 = document.createElement("td");
+              c2.textContent = `${t?.[0] ?? ""}`;
+              const c3 = document.createElement("td");
+              c3.textContent = fmtProb(t?.[1]);
+              tr.appendChild(c1);
+              tr.appendChild(c2);
+              tr.appendChild(c3);
+              ttTable.appendChild(tr);
+            });
+          }
+
+          tooltip.classList.add("visible");
+          tooltip.setAttribute("aria-hidden", "false");
+          tooltipSize = { w: tooltip.offsetWidth || 360, h: tooltip.offsetHeight || 220 };
+        }
+
+        function scheduleMove() {
+          if (rafMove) return;
+          rafMove = requestAnimationFrame(() => {
+            rafMove = 0;
+            const x = lastMove.x + 14;
+            const y = lastMove.y + 12;
+            const left = Math.min(x, window.innerWidth - tooltipSize.w - 12);
+            const top = Math.min(y, window.innerHeight - tooltipSize.h - 12);
+            tooltip.style.left = `${Math.max(12, left)}px`;
+            tooltip.style.top = `${Math.max(12, top)}px`;
+          });
+        }
+
+        svg.addEventListener("mouseleave", hideTooltip);
+
+        const gtToken = container.ground_truth ?? "";
+        for (const [px, py, layerNum, rank] of pts) {
+          const isFinal = includeFinal && layerNum === finalX;
+          const layerLabel = isFinal ? "final" : String(layerNum);
+          const topPairs = isFinal ? md.tops?.["final"] : md.tops?.[String(layerNum)];
+          const highlight = hasTokenInTop(topPairs, gtToken);
+
+          // Visible point
+          const point = el("circle", {
+            cx: px,
+            cy: py,
+            r: highlight ? 5.4 : 4.6,
+            fill: highlight ? "#ffd166" : lineColor,
+            stroke: highlight ? lineColor : "rgba(10, 15, 26, 0.35)",
+            "stroke-width": highlight ? 2.2 : 1,
+            "pointer-events": "none",
+          });
+          svg.appendChild(point);
+
+          // Invisible hit target (bigger = easier hover)
+          const hit = el("circle", {
+            cx: px,
+            cy: py,
+            r: 14,
+            fill: "transparent",
+            stroke: "transparent",
+            "stroke-width": 1,
+            "data-layer": layerLabel,
+            "data-highlight": highlight ? "1" : "0",
+          });
+          hit.addEventListener("pointerenter", (ev) => {
+            updateTooltipContent(layerLabel, rank, topPairs);
+            lastMove = { x: ev.clientX, y: ev.clientY };
+            scheduleMove();
+          });
+          hit.addEventListener("pointermove", (ev) => {
+            lastMove = { x: ev.clientX, y: ev.clientY };
+            scheduleMove();
+          });
+          hit.addEventListener("pointerleave", hideTooltip);
+          svg.appendChild(hit);
+        }
+
+        // Update header info
+        const finalToken = md.token ?? "(missing)";
+        const finalRank = ranks?.final != null ? `, final_rank=${Math.round(ranks.final)}` : "";
+        $("finalTokenInfo").textContent = `final token: ${finalToken}${finalRank}`;
+      }
+
+      function setActiveButton(mode) {
+        const map = {
+          original: $("btnOriginal"),
+          zero: $("btnZero"),
+          gaussian: $("btnGaussian"),
+        };
+        for (const [k, btn] of Object.entries(map)) btn.classList.toggle("active", k === mode);
+      }
+
+      async function main() {
+        const container = EMBEDDED_DATA;
+        $("datasetInfo").textContent = `dataset: ${container.dataset_file ?? "(embedded)"}`;
+        $("sampleInfo").textContent = `sample_index: ${container.sample_index ?? "(embedded)"}`;
+        $("gtInfo").textContent = `ground_truth: ${container.ground_truth ?? "(missing)"}`;
+        $("promptPre").textContent = container.prompt ?? "(missing)";
+
+        let mode = "original";
+        const opts = {
+          logScale: false,
+          includeFinal: true,
+        };
+
+        function rerender() {
+          setActiveButton(mode);
+          drawChart(container, mode, opts);
+        }
+
+        $("btnOriginal").addEventListener("click", () => {
+          mode = "original";
+          rerender();
+        });
+        $("btnZero").addEventListener("click", () => {
+          mode = "zero";
+          rerender();
+        });
+        $("btnGaussian").addEventListener("click", () => {
+          mode = "gaussian";
+          rerender();
+        });
+        $("logScale").addEventListener("change", (ev) => {
+          opts.logScale = Boolean(ev.target.checked);
+          rerender();
+        });
+        $("includeFinal").addEventListener("change", (ev) => {
+          opts.includeFinal = Boolean(ev.target.checked);
+          rerender();
+        });
+
+        rerender();
+      }
+
+      main();
+    </script>
+  </body>
+</html>
